@@ -185,7 +185,7 @@ def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, p
 
 
 def extractRules(dictList, rule, globalRepeatMode):
-    splitedDict = re.split(r'[\s\,]+', dictList) if dictList else []
+    splitedDict = re.split(r',\s*', dictList) if dictList else []
     reCharset = r"(\[([^\]]+?)\](\?|(\{\d+:\d+(:[\?\*])?\}))?)"
     reDict = r"(\{(\d+)\})"
     reRule = r"%s|%s"%(reCharset, reDict)
@@ -327,7 +327,8 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
 
 @click.command()
 @click.option("--mode", "-m", show_default=True, default=0, type=click.INT, help="generation mode:\n\n" + formatDict(_modes))
-@click.option("--dictlist", "-d", type=click.STRING, help="read wordlist from the file")
+@click.option("--dictlist", "-d", type=click.STRING,
+              help="read wordlist from the file, multi files should by seperated by comma.")
 @click.option("--rule", "-r", type=click.STRING, show_default=True, default="", 
               help="define word format, {0} means refer first file in wordlist, some built-in charsets:\n\n"
                 + formatDict(_built_in_charset) + "\n\nexample: [?dA]{1:2}{0}\nview documentation for more information.")

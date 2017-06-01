@@ -3,13 +3,13 @@
 
 from __future__ import print_function
 import unittest, os
-import TTPassGen
+from ttpassgen import ttpassgen
 
-#in.dict generate by: TTPassGen.py -r [123]{3:3} in.dict
-class TestTTPassGen(unittest.TestCase):
+#in.dict generate by: ttpassgen.py -r [123]{3:3} in.dict
+class Test_ttpassgen(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        super(TestTTPassGen, cls).setUpClass()
+        super(Test_ttpassgen, cls).setUpClass()
         def lc_func():
             if not os.path.exists('testout.dict'): return 0
             with open('testout.dict', 'r') as f:
@@ -17,9 +17,9 @@ class TestTTPassGen(unittest.TestCase):
         global lc
         lc = lc_func
 
-        def go_func(rule, dictlist='in.dict', partSize=0, diskCache=500, repeatMode='?'):
+        def go_func(rule, dictlist='tests/in.dict', partSize=0, diskCache=500, repeatMode='?'):
             try:
-                TTPassGen.cli.main(['-m', 0, '-d', dictlist, '-r', rule, '-g', repeatMode, '-c', diskCache, '-p', partSize, 'testout.dict'])
+                ttpassgen.cli.main(['-m', 0, '-d', dictlist, '-r', rule, '-g', repeatMode, '-c', diskCache, '-p', partSize, 'testout.dict'])
             except(SystemExit):
                 pass
             return lc()
@@ -29,7 +29,7 @@ class TestTTPassGen(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(TestTTPassGen, cls).tearDownClass()
+        super(Test_ttpassgen, cls).tearDownClass()
         lc = None
         go = None
         os.remove('testout.dict') if os.path.exists('testout.dict') else None
@@ -72,7 +72,7 @@ class TestTTPassGen(unittest.TestCase):
         with open('in2.dict', 'wb') as f:
             content = ['q00', 'q01']
             f.write('\n'.join(content))
-        self.assertEquals(go('{1}{0}[abc]?', dictlist='in.dict,in2.dict'), 48)
+        self.assertEquals(go('{1}{0}[abc]?', dictlist='tests/in.dict,in2.dict'), 48)
         os.remove('in2.dict') if os.path.exists('in2.dict') else None
 
 

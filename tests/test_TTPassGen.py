@@ -9,7 +9,7 @@ import TTPassGen
 class TestTTPassGen(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        super(TestTTDiceGen, cls).setUpClass()
+        super(TestTTPassGen, cls).setUpClass()
         def lc_func():
             if not os.path.exists('testout.dict'): return 0
             with open('testout.dict', 'r') as f:
@@ -29,7 +29,7 @@ class TestTTPassGen(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(TestTTDiceGen, cls).tearDownClass()
+        super(TestTTPassGen, cls).tearDownClass()
         lc = None
         go = None
         os.remove('testout.dict') if os.path.exists('testout.dict') else None

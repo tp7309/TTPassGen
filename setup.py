@@ -2,8 +2,8 @@ from setuptools import setup, find_packages
 
 setup(
         name='ttpassgen',
-        version='0.0.4',
-        description='Highly flexiable and scriptable password dictionary generator',
+        version='1.0.0',
+        description='Highly flexiable and scriptable password dictionary generator.',
         author='tp7309',
         author_email='yiyou7309@gmail.com',
         url='https://github.com/tp7309/TTPassGen',
@@ -23,3 +23,5 @@ setup(
 
 
 #pandoc --from=markdown --to=rst --output=README.rst README.md
+#python setup.py register -r pypi
+#python setup.py sdist upload -r pypi

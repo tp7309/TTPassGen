@@ -78,6 +78,7 @@ Options:
 
 # Examples
 **[]**  Used to include charset
+
 ## Repeat mode
 **[]**  1 repetitions.
 `[123] -> 1 2 3`

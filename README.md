@@ -22,6 +22,7 @@ Python 2 (version 2.7 or later), or Python 3 (version 3.2 or later).
 
 #Quick Start
 > Switch to the project's `src` directory if you downloaded the source code.
+
 Example: Generate word list output to file, the word format is prefix three digits, range 123, appear 2 to 3 times, followed by letter a or b.
 ```
 ttpassgen -r [123]{2:3}[ab] out.dict
@@ -39,7 +40,7 @@ Options:
                                  [default: 0]
   -d, --dictlist TEXT            read wordlist from the file, multi files
                                  should by seperated by comma.
-  -r, --rule TEXT                define word format, {0} means refer first
+  -r, --rule TEXT                define word format, $0 means refer first
                                  file in wordlist, some built-in charsets:
 
                                  ?l
@@ -53,7 +54,7 @@ Options:
                                  ?l?u?d?s
                                  ?q = ]
 
-                                 example: [?dA]{1:2}{0}
+                                 example: [?dA]{1:2}$0
                                  view
                                  documentation for more information.
                                  [default: ]
@@ -74,5 +75,34 @@ Options:
                                  [default: 0]
   --help                         Show this message and exit.
 ```
-Writting...
+
+#Examples
+##[]## Used to include charset
+##Repeat mode
+##[]## 1 repetitions.
+`[123] -> 1 2 3`
+##[]?## 0 or 1 repetitions
+`[123] -> '' 1 2 3`
+##[]{minLength:maxLength:repeatMode}##
+```
+when repeatMode is '?', [123]{1,2} -> 1 2 3 12 13 21 23 31 32
+when repeatMode is '*', [123]{1,2} -> 1 2 3 11 12 13 21 22 23 31 32 33
+```
+##[]{minLength:maxLength}##
+default use `global_repeat_mode` option.
+##$no## ref dict file index from `dictlist` option.
+```
+*ttpassgen --dictlist in.dict,in2.dict --rule $0[_]?$1 out.dict*
+when dictlist option defined as #in.dict,in2.dict#,
+in.dict content:
+word11
+word12
+
+in2.dict content:
+word21
+word22
+
+
+$0[_]?$1 -> word11word21 word11word22 word11_word21 word11_word22 word12word21 word12word22 word12_word21 word12_word22
+```
 

@@ -186,8 +186,9 @@ def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, p
 
 def extractRules(dictList, rule, globalRepeatMode):
     splitedDict = re.split(r',\s*', dictList) if dictList else []
+    dictCount = len(splitedDict)
     reCharset = r"(\[([^\]]+?)\](\?|(\{\d+:\d+(:[\?\*])?\}))?)"
-    reDict = r"(\{(\d+)\})"
+    reDict = r"(\$(\d{1,%s}))"%(dictCount if dictCount > 0 else 1)
     reRule = r"%s|%s"%(reCharset, reDict)
     match = re.match(reRule, rule)
     if not match:
@@ -330,8 +331,8 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
 @click.option("--dictlist", "-d", type=click.STRING,
               help="read wordlist from the file, multi files should by seperated by comma.")
 @click.option("--rule", "-r", type=click.STRING, show_default=True, default="", 
-              help="define word format, {0} means refer first file in wordlist, some built-in charsets:\n\n"
-                + formatDict(_built_in_charset) + "\n\nexample: [?dA]{1:2}{0}\nview documentation for more information.")
+              help="define word format, $0 means refer first file in wordlist, some built-in charsets:\n\n"
+                + formatDict(_built_in_charset) + "\n\nexample: [?dA]{1:2}$0\nview documentation for more information.")
 @click.option("--dict_cache", "-c", type=click.INT, show_default=True, default=500,
               help="each element in 'dictlist' option represents a dict file path, this option define"
                 + " the maximum amount of memory(MB) that can be used when reading their contents."

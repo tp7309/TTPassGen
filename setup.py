@@ -7,7 +7,7 @@ setup(
         author='tp7309',
         author_email='yiyou7309@gmail.com',
         url='https://github.com/tp7309/TTPassGen',
-        license='LICENSE',
+        license='Apache License Version2.0',
         keywords='python ttpassgen password-generator wordlist password-dict password-dict-generator',
         packages=find_packages(),
         include_package_data=True,
@@ -25,3 +25,4 @@ setup(
 #pandoc --from=markdown --to=rst --output=README.rst README.md
 #python setup.py register -r pypi
 #python setup.py sdist upload -r pypi
+#twine upload dist/*

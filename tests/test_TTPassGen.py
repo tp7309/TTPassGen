@@ -5,7 +5,7 @@ from __future__ import print_function
 import unittest, os
 from ttpassgen import ttpassgen
 
-#in.dict generate by: ttpassgen.py -r [123]{3:3} in.dict
+#test/in.dict generate by: ttpassgen.py -r [123]{3:3} in.dict
 class Test_ttpassgen(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -38,7 +38,7 @@ class Test_ttpassgen(unittest.TestCase):
         
 
     def test_dict_copy_rule(self):
-        self.assertEquals(go('{0}'), 6)
+        self.assertEquals(go('$0'), 6)
 
 
     def test_charset_rule_no_range(self):
@@ -65,23 +65,23 @@ class Test_ttpassgen(unittest.TestCase):
 
 
     def test_dict_mark_charset_rule(self):
-        self.assertEquals(go('{0}[abc]?'), 24)
+        self.assertEquals(go('$0[abc]?'), 24)
 
 
     def test_multi_dict_mark_charset_rule(self):
         with open('in2.dict', 'wb') as f:
             content = ['q00', 'q01']
             f.write('\n'.join(content))
-        self.assertEquals(go('{1}{0}[abc]?', dictlist='tests/in.dict,in2.dict'), 48)
+        self.assertEquals(go('$1$0[abc]?', dictlist='tests/in.dict,in2.dict'), 48)
         os.remove('in2.dict') if os.path.exists('in2.dict') else None
 
 
     def test_complex_rule(self):
-        self.assertEquals(go('[789]{0:3:*}{0}[?q]{0}'), 1440)
+        self.assertEquals(go('[789]{0:3:*}$0[?q]$0'), 1440)
 
     
     def test_dick_cache(self):
-        self.assertEquals(go('{0}[abc]?', diskCache=0), 24)
+        self.assertEquals(go('$0[abc]?', diskCache=0), 24)
 
     
     def test_part_size(self):
@@ -109,7 +109,7 @@ class Test_ttpassgen(unittest.TestCase):
 
     def test_unsupport_rule(self):
         os.remove('testout.dict') if os.path.exists('testout.dict') else None
-        self.assertEquals(go('{0}word233'), 0)
+        self.assertEquals(go('$0word233'), 0)
 
 if __name__ == '__main__':
     unittest.main()

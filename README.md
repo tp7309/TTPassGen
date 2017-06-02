@@ -1,7 +1,7 @@
-#TTPassGen
+# TTPassGen
 TTPassGen is a highly flexiable and scriptable password dictionary generator base on Python, you can easily use various rules to generate the desired combination of words.
 
-#Features
+# Features
 - generate password use combination、permulation、conditional rules and so on.
 - support all characters or words(from wordlist file) that can make up a password, some built-in charset has been provided, such as alphabetical lists and numeric lists.
 - you can specify the order and frequency of each element in the word.
@@ -11,16 +11,16 @@ TTPassGen is a highly flexiable and scriptable password dictionary generator bas
 - Generation of large amounts of passwords at once, no size limit.
 - it can breakup output by file size.
 
-#Install
+# Install
 `TTPassGen` can be easily installed using pip:
 ```
 pip install ttpassgen
 ```
 
-#Requirements
+# Requirements
 Python 2 (version 2.7 or later), or Python 3 (version 3.2 or later).
 
-#Quick Start
+# Quick Start
 > Switch to the project's `src` directory if you downloaded the source code.
 
 Example: Generate word list output to file, the word format is prefix three digits, range 123, appear 2 to 3 times, followed by letter a or b.
@@ -29,7 +29,7 @@ ttpassgen -r [123]{2:3}[ab] out.dict
 ```
 Done.
 
-#Options
+# Options
 ```
 C:\Users\tp730>ttpassgen --help
 Usage: ttpassgen [OPTIONS] OUTPUT
@@ -76,9 +76,9 @@ Options:
   --help                         Show this message and exit.
 ```
 
-#Examples
+# Examples
 **[]**  Used to include charset
-##Repeat mode
+## Repeat mode
 **[]**  1 repetitions.
 `[123] -> 1 2 3`
 

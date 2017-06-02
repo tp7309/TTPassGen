@@ -78,18 +78,22 @@ Options:
 
 #Examples
 **[]**  Used to include charset
-**Repeat mode
+##Repeat mode
 **[]**  1 repetitions.
 `[123] -> 1 2 3`
+
 **[]?** 0 or 1 repetitions
 `[123] -> '' 1 2 3`
+
 **[]{minLength:maxLength:repeatMode}**
 ```
 when repeatMode is '?', [123]{1,2} -> 1 2 3 12 13 21 23 31 32
 when repeatMode is '*', [123]{1,2} -> 1 2 3 11 12 13 21 22 23 31 32 33
 ```
+
 **[]{minLength:maxLength}**
 default use `global_repeat_mode` option.
+
 **$no** ref dict file index from `dictlist` option.
 ```
 *ttpassgen --dictlist in.dict,in2.dict --rule $0[_]?$1 out.dict*

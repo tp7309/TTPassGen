@@ -224,7 +224,7 @@ def extractRules(dictList, rule, globalRepeatMode):
     matchesLength = 0
     try:
         for match in matches:
-            match = filter(len, match) #may have some empty element
+            match = list(filter(len, match)) #may have some empty element
             matchesLength += len(match[0])
             if re.match(reDict, match[0]):
                 order = int(match[1])

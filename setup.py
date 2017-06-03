@@ -62,3 +62,6 @@ setup(
 
 #pyinstaller
 #pyinstaller --onefile ttpassgen/ttpassgen.py
+
+#auto generate requirements.txt
+#pip freeze > requirements.txt

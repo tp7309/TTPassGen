@@ -111,5 +111,15 @@ class Test_ttpassgen(unittest.TestCase):
         os.remove('testout.dict') if os.path.exists('testout.dict') else None
         self.assertEquals(go('$0word233'), 0)
 
+
+    # def test_pack_windows_exe(self):
+    #     exePath = '../dist/ttpassgen.exe'
+    #     os.remove(exePath) if os.path.exists(exePath) else None
+    #     preCwd = os.getcwd()
+    #     os.chdir(os.path.abspath(os.path.join(os.path.pardir, preCwd)))
+    #     os.system('pyinstaller --onefile ttpassgen/ttpassgen.py')
+    #     assert os.path.exists('dist/ttpassgen.exe')
+    #     os.chdir(preCwd)
+
 if __name__ == '__main__':
     unittest.main()

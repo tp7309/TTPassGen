@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 
 from __future__ import print_function
+import multiprocessing.forking
 from collections import OrderedDict
 import sys
 import click
@@ -10,7 +11,7 @@ import itertools
 import time
 import os
 import math, functools
-from multiprocessing import Process, Array
+from multiprocessing import Array
 import threading
 from tqdm import tqdm
 
@@ -33,6 +34,30 @@ _repeat_modes = OrderedDict([
 ])
 
 _part_dict_name_format = '%s.%d'
+
+
+class _Popen(multiprocessing.forking.Popen):
+    def __init__(self, *args, **kw):
+        if hasattr(sys, 'frozen'):
+            # We have to set original _MEIPASS2 value from sys._MEIPASS
+            # to get --onefile mode working.
+            os.putenv('_MEIPASS2', sys._MEIPASS)
+        try:
+            super(_Popen, self).__init__(*args, **kw)
+        finally:
+            if hasattr(sys, 'frozen'):
+                # On some platforms (e.g. AIX) 'os.unsetenv()' is not
+                # available. In those cases we cannot delete the variable
+                # but only set it to the empty string. The bootloader
+                # can handle this case.
+                if hasattr(os, 'unsetenv'):
+                    os.unsetenv('_MEIPASS2')
+                else:
+                    os.putenv('_MEIPASS2', '')
+
+class Process(multiprocessing.Process):
+    _Popen = _Popen
+
 
 class CharsetRule(object):
     def __init__(self, minLength, maxLength, charset, repeatMode):
@@ -351,4 +376,6 @@ def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, output)
 
 
 if __name__ == "__main__":
+    # On Windows calling this function is necessary.
+    multiprocessing.freeze_support()
     cli()

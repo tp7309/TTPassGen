@@ -28,15 +28,17 @@ long_description = ''
 with open('README.rst') as f:
     long_description = f.read()
 
+description = 'A highly flexiable and scriptable password dictionary generator.'
+
 setup(
         name='ttpassgen',
         version='1.0',
-        description='Highly flexiable and scriptable password dictionary generator.',
+        description=description,
         author='tp7309',
         author_email='yiyou7309@gmail.com',
         url='https://github.com/tp7309/TTPassGen',
         license='Apache License Version 2.0',
-        keywords='python ttpassgen password-generator wordlist password-dict password-dict-generator',
+        keywords='python ttpassgen password-generator wordlist password-dict password-dict-generator brute-force word-combination',
         long_description=long_description,
         packages=find_packages(),
         include_package_data=True,
@@ -51,9 +53,12 @@ setup(
 )
 
 
+#md2rst
 #pandoc --from=markdown --to=rst --output=README.rst README.md
-#python setup.py register -r pypi
-#python setup.py sdist upload -r pypi
 
+#upload
 #python setup.py bdist_wheel
 #twine upload dist/*
+
+#pyinstaller
+#pyinstaller --onefile ttpassgen/ttpassgen.py

@@ -35,6 +35,7 @@ class Test_ttpassgen(unittest.TestCase):
         os.remove('testout.dict') if os.path.exists('testout.dict') else None
         os.remove('testout.dict.1') if os.path.exists('testout.dict.1') else None
         os.remove('testout.dict.2') if os.path.exists('testout.dict.2') else None
+        os.remove('testout.dict.3') if os.path.exists('testout.dict.3') else None
         
 
     def test_dict_copy_rule(self):
@@ -89,6 +90,7 @@ class Test_ttpassgen(unittest.TestCase):
     def test_part_size(self):
         os.remove('testout.dict.1') if os.path.exists('testout.dict.1') else None
         os.remove('testout.dict.2') if os.path.exists('testout.dict.2') else None
+        os.remove('testout.dict.3') if os.path.exists('testout.dict.3') else None
 
         go('[?l]{1:4}', partSize=1)
         totalLine = 0
@@ -96,12 +98,15 @@ class Test_ttpassgen(unittest.TestCase):
             totalLine += len(f.readlines())
         with open('testout.dict.2', 'r') as f:
             totalLine += len(f.readlines())
+        if len(ttpassgen._linesep) > 1:
+            with open('testout.dict.3', 'r') as f:
+                totalLine += len(f.readlines())
 
         #actual value: 1024 * 1, why 24 difference? I like do it>_>
         self.assertTrue(1000 <= os.path.getsize('testout.dict.1') / 1024 <= 1048)
-        self.assertTrue(762 <= os.path.getsize('testout.dict.2') / 1024 <= 815)  #actual value: 791 * 1
         os.remove('testout.dict.1') if os.path.exists('testout.dict.1') else None
         os.remove('testout.dict.2') if os.path.exists('testout.dict.2') else None
+        os.remove('testout.dict.3') if os.path.exists('testout.dict.3') else None
         self.assertEquals(totalLine, 375076)
 
     

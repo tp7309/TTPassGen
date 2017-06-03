@@ -35,6 +35,8 @@ _repeat_modes = OrderedDict([
 
 _part_dict_name_format = '%s.%d'
 
+_linesep = os.linesep
+
 
 class _Popen(multiprocessing.forking.Popen):
     def __init__(self, *args, **kw):
@@ -88,7 +90,12 @@ class WordProductor(object):
         return self.prod(self.countList)
     
     def totalSize(self):
-        return self.prod(self.sizeList)
+        total = 0
+        tCount = self.totalCount()
+        for i, size in enumerate(self.sizeList):
+            total += size * tCount / self.countList[i]
+        total += tCount * len(_linesep)
+        return total
 
 
 def prettySize(size_bytes):
@@ -124,7 +131,7 @@ def getCharsetRuleResultDataSize(rule):
             for i in range(len(rule.charset) - wordLength + 1, len(rule.charset) + 1):
                 subSum *= i
             count += subSum
-            size += subSum * (wordLength + len('\n'))
+            size += subSum * wordLength
     else:
         for wordLength in range(rule.minLength, rule.maxLength + 1):
             count += math.pow(len(rule.charset), wordLength)
@@ -140,7 +147,8 @@ def getDictRuleResultDataSize(rule):
         while chunk:
             sumLines += chunk.count('\n')
             chunk = readFunc(bufferSize)
-    return sumLines, os.path.getsize(rule.dictPath)
+    linSeperatorCount = len(_linesep) * sumLines
+    return sumLines, (os.path.getsize(rule.dictPath) - linSeperatorCount)
 
 
 def charsetWordProductorWrapper(func):
@@ -180,7 +188,7 @@ def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, p
         return
     dictFiles = []
     if dictList:
-        dictFiles = dictList.split(',')
+        dictFiles = re.split(r',\s*', dictList) if dictList else []
         for f in dictFiles:
             if not os.path.exists(f):
                 echoCommonTips("dictlist")
@@ -247,7 +255,7 @@ def extractRules(dictList, rule, globalRepeatMode):
                             minLength = maxLength = int(lenInfo[0])
                             repeatMode = lenInfo[1]
                     elif match[2][0] == '{':
-                        minLength = maxLength = lenInfo[0]  #[]{n}
+                        minLength = maxLength = int(lenInfo[0])  #[]{n}
                     else:
                         repeatMode = lenInfo[0]    #?
                 else:
@@ -291,7 +299,7 @@ def generateWordProductor(rules, dictCacheLimit):
             wordCount, wordSize = getDictRuleResultDataSize(ruleObj)
             wordCountList.append(wordCount)
             wordSizeList.append(wordSize)
-    return WordProductor(wordCountList, wordSizeList, wordProductors)       
+    return WordProductor(wordCountList, wordSizeList, wordProductors)
 
 
 def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
@@ -319,12 +327,13 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
     try:
         p = itertools.product(*productor.productors) if len(productor.productors) > 1 else productor.productors[0]
         f = open(firstOutputFileName, 'wb', buffering=1024 * 4)
+        lineSeperatorLength = len(_linesep)
         if realPartSize:  # avoid condition code cost.
             if len(productor.productors) > 1:  # complex rule
                 for w in p:
-                    f.write(''.join(w) + '\n')
+                    f.write(''.join(w) + _linesep)
                     progress += 1
-                    lineLength = len(w) + 1
+                    lineLength = len(w) + lineSeperatorLength
                     currSize += lineLength
                     if currSize > realPartSize:
                         currSize = lineLength
@@ -334,9 +343,9 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
                             output, partIndex), 'wb', buffering=1024 * 4)
             else:
                 for w in p:
-                    f.write(w + '\n')
+                    f.write(w + _linesep)
                     progress += 1
-                    lineLength = len(w) + 1
+                    lineLength = len(w) + lineSeperatorLength
                     currSize += lineLength
                     if currSize > realPartSize:
                         currSize = lineLength
@@ -347,11 +356,11 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
         else:
             if len(productor.productors) > 1:  #complex rule
                 for w in p:
-                    f.write(''.join(w) + '\n')
+                    f.write(''.join(w) + _linesep)
                     progress += 1
             else:
                 for w in p:
-                    f.write(w + '\n')
+                    f.write(w + _linesep)
                     progress += 1
     finally:
         f.close()
@@ -384,4 +393,5 @@ def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, output)
 if __name__ == "__main__":
     # On Windows calling this function is necessary.
     multiprocessing.freeze_support()
+    # cli.main(['-d', '../tests/in.dict', '-r', '[?d]{2}$0', 'out.dict'])
     cli()

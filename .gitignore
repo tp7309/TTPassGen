@@ -2,6 +2,7 @@
 out.dict
 out.dict.1
 out.dict.2
+README.rst
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

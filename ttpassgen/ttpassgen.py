@@ -360,8 +360,8 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
                 + formatDict(_built_in_charset) + "\n\nexample: [?dA]{1:2}$0\nview documentation for more information.")
 @click.option("--dict_cache", "-c", type=click.INT, show_default=True, default=500,
               help="each element in 'dictlist' option represents a dict file path, this option define"
-                + " the maximum amount of memory(MB) that can be used when reading their contents."
-                + "increasing the cache may speed up the build when input dict files is huge.")
+                + " the maximum amount of memory(MB) that can be used when reading their contents,"
+                + "increasing this value when the file is large may increase the build speed.")
 @click.option("--global_repeat_mode", "-g", show_default=True, default='?', type=click.STRING,
               help="whether the character is allowd to repeat:\n\n" + formatDict(_repeat_modes))
 @click.option("--part_size", "-p", type=click.INT, default=0, show_default=True,

@@ -13,11 +13,9 @@ isort==4.2.5
 lazy-object-proxy==1.3.1
 mccabe==0.6.1
 nose==1.3.7
-pandoc==1.0.0b2
 pkginfo==1.4.1
 ply==3.10
 pycodestyle==2.3.1
-PyInstaller==3.2.1
 pylint==1.7.1
 requests==2.17.3
 requests-toolbelt==0.8.0

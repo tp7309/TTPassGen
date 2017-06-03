@@ -112,7 +112,7 @@ class Test_ttpassgen(unittest.TestCase):
     def test_unsupport_rule(self):
         os.remove('testout.dict') if os.path.exists('testout.dict') else None
         self.assertEquals(go('$0word233'), 0)
-        
+
 
 if __name__ == '__main__':
     unittest.main()

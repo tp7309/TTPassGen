@@ -6,7 +6,7 @@ generator base on Python, you can easily use various rules to generate
 the desired combination of words.
 
 README i18n:
-`中文说明 <https://github.com/tp7309/TTPassGen/README_zh_CN.md>`__
+`中文说明 <https://github.com/tp7309/TTPassGen/blob/master/README_zh_CN.md>`__
 
 Features
 ========

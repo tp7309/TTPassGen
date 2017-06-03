@@ -212,7 +212,7 @@ def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, p
 def extractRules(dictList, rule, globalRepeatMode):
     splitedDict = re.split(r',\s*', dictList) if dictList else []
     dictCount = len(splitedDict)
-    reCharset = r"(\[([^\]]+?)\](\?|(\{\d+:\d+(:[\?\*])?\}))?)"
+    reCharset = r"(\[([^\]]+?)\](\?|(\{\d+:\d+(:[\?\*])?\})|(\{\d+(:[\?\*])?\}))?)"
     reDict = r"(\$(\d{1,%s}))"%(dictCount if dictCount > 0 else 1)
     reRule = r"%s|%s"%(reCharset, reDict)
     match = re.match(reRule, rule)
@@ -238,10 +238,16 @@ def extractRules(dictList, rule, globalRepeatMode):
                 if len(match) > 2:
                     lenInfo = match[2][1:-1].split(':')
                     if len(lenInfo) >= 2:
-                        minLength = int(lenInfo[0])
-                        maxLength = int(lenInfo[1])
-                        if (len(lenInfo) > 2):
-                            repeatMode = lenInfo[2]
+                        if re.match('\d', lenInfo[1]):  #[]{minLength:maxLength:repeatMode}
+                            minLength = int(lenInfo[0])
+                            maxLength = int(lenInfo[1])
+                            if (len(lenInfo) > 2):
+                                repeatMode = lenInfo[2]
+                        else:
+                            minLength = maxLength = int(lenInfo[0])
+                            repeatMode = lenInfo[1]
+                    elif match[2][0] == '{':
+                        minLength = maxLength = lenInfo[0]  #[]{n}
                     else:
                         repeatMode = lenInfo[0]    #?
                 else:

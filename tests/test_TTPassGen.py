@@ -62,7 +62,8 @@ class Test_ttpassgen(unittest.TestCase):
 
     def test_mask_charset_rule_with_range(self):
         self.assertEquals(go('[?d]{2:2}'), 90)
-
+        self.assertEquals(go('[?d]{2}'), 90)
+    
 
     def test_dict_mark_charset_rule(self):
         self.assertEquals(go('$0[abc]?'), 24)
@@ -78,6 +79,7 @@ class Test_ttpassgen(unittest.TestCase):
 
     def test_complex_rule(self):
         self.assertEquals(go('[789]{0:3:*}$0[?q]$0'), 1440)
+        self.assertEquals(go('[789]{0:3:*}$0[?q]{1:?}$0'), 1440)
 
     
     def test_dick_cache(self):

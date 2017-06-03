@@ -1,7 +1,7 @@
 # TTPassGen
 TTPassGen is a highly flexiable and scriptable password dictionary generator base on Python, you can easily use various rules to generate the desired combination of words.
 
-README i18n: [中文说明](https://github.com/tp7309/TTPassGen/README_zh_CN.md)
+README i18n: [中文说明](https://github.com/tp7309/TTPassGen/blob/master/README_zh_CN.md)
 
 # Features
 - generate password use combination、permulation、conditional rules and so on.
@@ -71,7 +71,7 @@ Options:
                                  [default: 0]
   --help                         Show this message and exit.
 ```
-generated password displayed line by line in `OUTPUT`.
+generated password displayed line by line in `OUTPUT`. It is recommended to use notepad ++ to open file(`utf-8`).
 
 # Examples
 **[]**  Used to include charset
@@ -83,14 +83,17 @@ generated password displayed line by line in `OUTPUT`.
 **[]?** 0 or 1 repetitions
 `[123] -> '' 1 2 3`
 
-**[]{minLength:maxLength:repeatMode}**
+**[]{m:n:r}**
 ```
 when repeatMode is `?`, [123]{1,2} -> 1 2 3 12 13 21 23 31 32
 when repeatMode is `*`, [123]{1,2} -> 1 2 3 11 12 13 21 22 23 31 32 33
 ```
 
-**[]{minLength:maxLength}**
+**[]{m:n}**
 default use `global_repeat_mode` option.
+
+**[]{n} or []{n:r}**
+same as `[]{n:n:r}`.
 
 **$no** ref dict file index from `dictlist` option.
 ```

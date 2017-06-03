@@ -1,5 +1,5 @@
 # TTPassGen
-TTPassGen是一个基于Python的高度灵活和可编写脚本的密码字典生成器，您可以轻松地使用各种规则来生成所需的单词组合。
+TTPassGen是一个基于Python的可定义灵活生成规则的密码字典生成器，您可以轻松地使用各种规则来生成所需的单词组合。
 
 # 特性
 - 使用组合，排列，条件规则等生成密码.
@@ -64,7 +64,7 @@ Options:
                                  [default: 0]
   --help                         Show this message and exit.
 ```
-输出文件中每个密码占一行。
+输出文件采用utf-8编码，每个密码占一行，推荐使用notepad++打开。
 
 # 示例
 **[]**  一对方括号用于包裹所有要使用的字符。
@@ -76,13 +76,16 @@ Options:
 **[]?** 0次或1次。
 `[123] -> '' 1 2 3`
 
-**[]{minLength:maxLength:repeatMode}**  重复minLength次到maxLength次，重复模式(repeatMode)支持`?`或`*`。
+**[]{m:n:r}**  重复m次到n次，重复模式(r)支持`?`或`*`。
 ```
 repeatMode为 `?`, [123]{1,2} -> 1 2 3 12 13 21 23 31 32
 repeatMode为 `*`, [123]{1,2} -> 1 2 3 11 12 13 21 22 23 31 32 33
 ```
 
-**[]{minLength:maxLength}** 重复minLength次到maxLength次，重复模式未定义时采用`global_repeat_mode`选项定义的值。
+**[]{m:n}** 重复m次到n次，重复模式未定义时采用`global_repeat_mode`选项定义的值。
+
+**[]{n} or []{n:r}**
+相当于`[]{n:n:r}`.
 
 **$no** 引用`dictlist`选项中的输入文件的内容。
 ```

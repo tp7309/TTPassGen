@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, sys
 
 classifiers=[
     # How mature is this project? Common values are
@@ -25,6 +25,9 @@ with open('README.rst') as f:
     long_description = f.read()
 
 description = 'A highly flexiable and scriptable password dictionary generator.'
+install_requires = ['click', 'tqdm']
+if sys.version_info < (2, 7):
+    install_requires.extend('ordereddict')
 
 setup(
         name='ttpassgen',
@@ -38,9 +41,7 @@ setup(
         long_description=long_description,
         packages=find_packages(),
         include_package_data=True,
-        install_requires=[
-            'click', 'tqdm'
-        ],
+        install_requires=install_requires,
         entry_points={
             'console_scripts':[
                 'ttpassgen = ttpassgen.ttpassgen:cli',

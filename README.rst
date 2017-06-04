@@ -149,4 +149,4 @@ Repeat mode
 
 Update log
 =======
-`更新日志 <https://github.com/tp7309/TTPassGen/blob/master/CHANGES.md>`__
+`Update log <https://github.com/tp7309/TTPassGen/blob/master/CHANGES.md>`__

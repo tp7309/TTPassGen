@@ -73,7 +73,7 @@ class Test_ttpassgen(unittest.TestCase):
     def test_multi_dict_mark_charset_rule(self):
         with open('in2.dict', 'wb') as f:
             content = ['q00', 'q01']
-            f.write(bytes('\n'.join(content), 'utf-8')
+            f.write(('\n'.join(content)).encode('utf-8'))
         self.assertEquals(go('$1$0[abc]?', dictlist='tests/in.dict,in2.dict'), 48)
         os.remove('in2.dict') if os.path.exists('in2.dict') else None
 

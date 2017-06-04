@@ -333,7 +333,7 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
             if realPartSize:  # avoid condition code cost.
                 if len(productor.productors) > 1:  # complex rule
                     for w in p:
-                        f.write(bytes(''.join(w) + _linesep, 'utf-8'))
+                        f.write((''.join(w) + _linesep).encode('utf-8'))
                         progress += 1
                         lineLength = len(w) + lineSeperatorLength
                         currSize += lineLength
@@ -345,7 +345,7 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
                                 output, partIndex), 'wb', buffering=1024 * 4)
                 else:
                     for w in p:
-                        f.write(bytes(w + _linesep, 'utf-8'))
+                        f.write((w + _linesep).encode('utf-8'))
                         progress += 1
                         lineLength = len(w) + lineSeperatorLength
                         currSize += lineLength
@@ -358,11 +358,11 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
             else:
                 if len(productor.productors) > 1:  #complex rule
                     for w in p:
-                        f.write(bytes(''.join(w) + _linesep, 'utf-8'))
+                        f.write((''.join(w) + _linesep).encode('utf-8'))
                         progress += 1
                 else:
                     for w in p:
-                        f.write(bytes(w + _linesep, 'utf-8'))
+                        f.write((w + _linesep).encode('utf-8'))
                         progress += 1
         else:
             if realPartSize:  # avoid condition code cost.

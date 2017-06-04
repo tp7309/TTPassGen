@@ -442,8 +442,10 @@ def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, output)
             "unknown mode, try use 'python TDictGen.py --help' for get more information.")
 
 
+import coverage
 if __name__ == "__main__":
     # On Windows calling this function is necessary.
     multiprocessing.freeze_support()
     # cli.main(['-d', '../tests/in.dict', '-r', '[?d]{2}$0', 'out.dict'])
+    print(coverage.__version__)
     cli()

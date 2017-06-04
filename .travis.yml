@@ -12,6 +12,6 @@ install:
 # command to run tests
 script: nosetests
 script:
-  coverage run --source=ttpassgen tests/test_ttpassgen.py test
+  coverage run --source=ttpassgen setup.py test
 after_success:
   coveralls

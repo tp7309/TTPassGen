@@ -33,10 +33,10 @@ class Test_ttpassgen(unittest.TestCase):
         super(Test_ttpassgen, cls).tearDownClass()
         lc = None
         go = None
-        os.remove('testout.dict') if os.path.exists('testout.dict') else None
-        os.remove('testout.dict.1') if os.path.exists('testout.dict.1') else None
-        os.remove('testout.dict.2') if os.path.exists('testout.dict.2') else None
-        os.remove('testout.dict.3') if os.path.exists('testout.dict.3') else None
+        if os.path.exists('testout.dict'): os.remove('testout.dict')
+        if os.path.exists('testout.dict.1'): os.remove('testout.dict.1')
+        if os.path.exists('testout.dict.2'): os.remove('testout.dict.2')
+        if os.path.exists('testout.dict.3'): os.remove('testout.dict.3')
         
 
     def test_dict_copy_rule(self):
@@ -76,7 +76,7 @@ class Test_ttpassgen(unittest.TestCase):
             content = ['q00', 'q01']
             f.write(('\n'.join(content)).encode('utf-8'))
         self.assertEquals(go('$1$0[abc]?', dictlist='tests/in.dict,in2.dict'), 48)
-        os.remove('in2.dict') if os.path.exists('in2.dict') else None
+        if os.path.exists('in2.dict'): os.remove('in2.dict')
 
 
     def test_complex_rule(self):
@@ -89,9 +89,9 @@ class Test_ttpassgen(unittest.TestCase):
 
     
     def test_part_size(self):
-        os.remove('testout.dict.1') if os.path.exists('testout.dict.1') else None
-        os.remove('testout.dict.2') if os.path.exists('testout.dict.2') else None
-        os.remove('testout.dict.3') if os.path.exists('testout.dict.3') else None
+        if os.path.exists('testout.dict.1'): os.remove('testout.dict.1')
+        if os.path.exists('testout.dict.2'): os.remove('testout.dict.2')
+        if os.path.exists('testout.dict.3'): os.remove('testout.dict.3')
 
         go('[?l]{1:4}', partSize=1)
         totalLine = 0
@@ -105,16 +105,16 @@ class Test_ttpassgen(unittest.TestCase):
 
         #actual value: 1024 * 1, why 24 difference? I like do it>_>
         self.assertTrue(1000 <= os.path.getsize('testout.dict.1') / 1024 <= 1048)
-        os.remove('testout.dict.1') if os.path.exists('testout.dict.1') else None
-        os.remove('testout.dict.2') if os.path.exists('testout.dict.2') else None
-        os.remove('testout.dict.3') if os.path.exists('testout.dict.3') else None
+        if os.path.exists('testout.dict.1'): os.remove('testout.dict.1')
+        if os.path.exists('testout.dict.2'): os.remove('testout.dict.2')
+        if os.path.exists('testout.dict.3'): os.remove('testout.dict.3')
         self.assertEquals(totalLine, 375076)
 
     
     def test_wrong_length_in_rule(self):
-        os.remove('testout.dict') if os.path.exists('testout.dict') else None
+        if os.path.exists('testout.dict'): os.remove('testout.dict')
         self.assertEquals(go('[789]{0:-3}'), 0)
 
     def test_unsupport_rule(self):
-        os.remove('testout.dict') if os.path.exists('testout.dict') else None
+        if os.path.exists('testout.dict'): os.remove('testout.dict')
         self.assertEquals(go('$0word233'), 0)

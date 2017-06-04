@@ -27,7 +27,7 @@ Python 2 (version 2.7 or later), or Python 3 (version 3.2 or later).
 如果你使用的是Windows操作系统，可以直接下载[release version](https://github.com/tp7309/TTPassGen/releases), 不需要Python环境。
 
 # 快速使用
-> 如何你有下载源码的话，在终端或命令提示符窗口中先切换ttpassgen目录下，下面有ttpassgen.py，如果是下面的ttpassgen.exe文件，那么注意最好在Windows的命令提示符窗口下执行命令。
+> 如何你有下载源码的话，在终端或命令提示符窗口中先切换ttpassgen目录下，下面有ttpassgen.py，如果是是使用ttpassgen.exe文件，那么注意最好在Windows的命令提示符窗口下执行命令。
 ```
 ttpassgen -r [123]{2:3}[ab] out.dict
 ```

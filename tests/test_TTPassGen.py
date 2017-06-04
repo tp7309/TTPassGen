@@ -1,8 +1,9 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
+# coding: utf-8
 
 from __future__ import print_function
-import unittest, os
+import unittest, os, sys
+myPath = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, myPath + '/../')
 from ttpassgen import ttpassgen
 
 #test/in.dict generate by: ttpassgen.py -r [123]{3:3} in.dict
@@ -117,7 +118,3 @@ class Test_ttpassgen(unittest.TestCase):
     def test_unsupport_rule(self):
         os.remove('testout.dict') if os.path.exists('testout.dict') else None
         self.assertEquals(go('$0word233'), 0)
-
-
-if __name__ == '__main__':
-    unittest.main()

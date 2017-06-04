@@ -447,5 +447,4 @@ if __name__ == "__main__":
     # On Windows calling this function is necessary.
     multiprocessing.freeze_support()
     # cli.main(['-d', '../tests/in.dict', '-r', '[?d]{2}$0', 'out.dict'])
-    print(coverage.__version__)
     cli()

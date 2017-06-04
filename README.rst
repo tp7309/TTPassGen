@@ -1,6 +1,13 @@
 TTPassGen
 =========
 
+.. image:: https://travis-ci.org/tp7309/TTPassGen.svg?branch=master
+    :target: https://travis-ci.org/tp7309/TTPassGen
+.. image:: https://coveralls.io/repos/github/tp7309/TTPassGen/badge.svg?branch=master
+    :target: https://coveralls.io/github/tp7309/TTPassGen?branch=master
+.. image:: https://api.codacy.com/project/badge/Grade/25f05aa766c34eea9b9692725237e873
+    :target: https://www.codacy.com/app/tp7309/TTPassGen?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tp7309/TTPassGen&amp;utm_campaign=Badge_Grade
+
 TTPassGen is a highly flexiable and scriptable password dictionary
 generator base on Python, you can easily use various rules to generate
 the desired combination of words.

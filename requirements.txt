@@ -23,4 +23,3 @@ singledispatch==3.4.0.3
 six==1.10.0
 tqdm==4.11.2
 twine==1.9.1
-ordereddict==1.1

@@ -3,7 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/tp7309/TTPassGen/badge.svg?branch=master)](https://coveralls.io/github/tp7309/TTPassGen?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/25f05aa766c34eea9b9692725237e873)](https://www.codacy.com/app/tp7309/TTPassGen?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tp7309/TTPassGen&amp;utm_campaign=Badge_Grade)
 
-TTPassGen是一个基于Python的可定义灵活生成规则的密码字典生成器，您可以轻松地使用各种规则来生成所需的单词组合。
+TTPassGen是一个支持灵活定制的密码字典生成器，我们可以轻松地定义各种规则来生成所需的单词组合。因为基于Python，所以可以跨平台使用。
 
 # 特性
 - 使用组合，排列，条件规则等生成密码.
@@ -107,3 +107,6 @@ word22
 输出：
 word11word21 word11word22 word11_word21 word11_word22 word12word21 word12word22 word12_word21 word12_word22
 ```
+
+# 更新日志
+[更新日志]((https://github.com/tp7309/TTPassGen/blob/master/CHANGES.md)

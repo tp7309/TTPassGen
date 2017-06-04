@@ -2,7 +2,6 @@
 # -*- coding:utf-8 -*-
 
 from __future__ import print_function
-from collections import OrderedDict
 import sys
 import click
 import re
@@ -14,6 +13,10 @@ from multiprocessing import Array
 import multiprocessing
 import threading
 from tqdm import tqdm
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
 
 
 # Module multiprocessing start: organized differently in Python 3.4+

@@ -2,7 +2,6 @@
 # -*- coding:utf-8 -*-
 
 from __future__ import print_function
-import multiprocessing.forking
 from collections import OrderedDict
 import sys
 import click
@@ -12,8 +11,48 @@ import time
 import os
 import math, functools
 from multiprocessing import Array
+import multiprocessing
 import threading
 from tqdm import tqdm
+
+
+# Module multiprocessing start: organized differently in Python 3.4+
+try:
+    # Python 3.4+
+    if sys.platform.startswith('win'):
+        import multiprocessing.popen_spawn_win32 as forking
+    else:
+        import multiprocessing.popen_fork as forking
+except ImportError:
+    import multiprocessing.forking as forking
+
+if sys.platform.startswith('win'):
+    # First define a modified version of Popen.
+    class _Popen(forking.Popen):
+        def __init__(self, *args, **kw):
+            if hasattr(sys, 'frozen'):
+                # We have to set original _MEIPASS2 value from sys._MEIPASS
+                # to get --onefile mode working.
+                os.putenv('_MEIPASS2', sys._MEIPASS)
+            try:
+                super(_Popen, self).__init__(*args, **kw)
+            finally:
+                if hasattr(sys, 'frozen'):
+                    # On some platforms (e.g. AIX) 'os.unsetenv()' is not
+                    # available. In those cases we cannot delete the variable
+                    # but only set it to the empty string. The bootloader
+                    # can handle this case.
+                    if hasattr(os, 'unsetenv'):
+                        os.unsetenv('_MEIPASS2')
+                    else:
+                        os.putenv('_MEIPASS2', '')
+
+    # Second override 'Popen' class with our modified version.
+    forking.Popen = _Popen
+
+class Process(multiprocessing.Process):
+    _Popen = _Popen
+#Module multiprocessing end
 
 _modes = OrderedDict([
     (0, 'combination rule mode')
@@ -36,30 +75,6 @@ _repeat_modes = OrderedDict([
 _part_dict_name_format = '%s.%d'
 
 _linesep = os.linesep
-
-
-class _Popen(multiprocessing.forking.Popen):
-    def __init__(self, *args, **kw):
-        if hasattr(sys, 'frozen'):
-            # We have to set original _MEIPASS2 value from sys._MEIPASS
-            # to get --onefile mode working.
-            os.putenv('_MEIPASS2', sys._MEIPASS)
-        try:
-            super(_Popen, self).__init__(*args, **kw)
-        finally:
-            if hasattr(sys, 'frozen'):
-                # On some platforms (e.g. AIX) 'os.unsetenv()' is not
-                # available. In those cases we cannot delete the variable
-                # but only set it to the empty string. The bootloader
-                # can handle this case.
-                if hasattr(os, 'unsetenv'):
-                    os.unsetenv('_MEIPASS2')
-                else:
-                    os.putenv('_MEIPASS2', '')
-
-class Process(multiprocessing.Process):
-    _Popen = _Popen
-
 
 class CharsetRule(object):
     def __init__(self, minLength, maxLength, charset, repeatMode):

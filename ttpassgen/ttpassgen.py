@@ -328,40 +328,77 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
         p = itertools.product(*productor.productors) if len(productor.productors) > 1 else productor.productors[0]
         f = open(firstOutputFileName, 'wb', buffering=1024 * 4)
         lineSeperatorLength = len(_linesep)
-        if realPartSize:  # avoid condition code cost.
-            if len(productor.productors) > 1:  # complex rule
-                for w in p:
-                    f.write(''.join(w) + _linesep)
-                    progress += 1
-                    lineLength = len(w) + lineSeperatorLength
-                    currSize += lineLength
-                    if currSize > realPartSize:
-                        currSize = lineLength
-                        f.close()
-                        partIndex += 1
-                        f = open(_part_dict_name_format % (
-                            output, partIndex), 'wb', buffering=1024 * 4)
+
+        if sys.version_info > (3, 0): #there will be a minimum of 10% performance improvement.
+            if realPartSize:  # avoid condition code cost.
+                if len(productor.productors) > 1:  # complex rule
+                    for w in p:
+                        f.write(bytes(''.join(w) + _linesep))
+                        progress += 1
+                        lineLength = len(w) + lineSeperatorLength
+                        currSize += lineLength
+                        if currSize > realPartSize:
+                            currSize = lineLength
+                            f.close()
+                            partIndex += 1
+                            f = open(_part_dict_name_format % (
+                                output, partIndex), 'wb', buffering=1024 * 4)
+                else:
+                    for w in p:
+                        f.write(bytes(w + _linesep))
+                        progress += 1
+                        lineLength = len(w) + lineSeperatorLength
+                        currSize += lineLength
+                        if currSize > realPartSize:
+                            currSize = lineLength
+                            f.close()
+                            partIndex += 1
+                            f = open(_part_dict_name_format % (
+                                output, partIndex), 'wb', buffering=1024 * 4)
             else:
-                for w in p:
-                    f.write(w + _linesep)
-                    progress += 1
-                    lineLength = len(w) + lineSeperatorLength
-                    currSize += lineLength
-                    if currSize > realPartSize:
-                        currSize = lineLength
-                        f.close()
-                        partIndex += 1
-                        f = open(_part_dict_name_format % (
-                            output, partIndex), 'wb', buffering=1024 * 4)
+                if len(productor.productors) > 1:  #complex rule
+                    for w in p:
+                        f.write(bytes(''.join(w) + _linesep))
+                        progress += 1
+                else:
+                    for w in p:
+                        f.write(bytes(w + _linesep))
+                        progress += 1
         else:
-            if len(productor.productors) > 1:  #complex rule
-                for w in p:
-                    f.write(''.join(w) + _linesep)
-                    progress += 1
+            if realPartSize:  # avoid condition code cost.
+                if len(productor.productors) > 1:  # complex rule
+                    for w in p:
+                        f.write(''.join(w) + _linesep)
+                        progress += 1
+                        lineLength = len(w) + lineSeperatorLength
+                        currSize += lineLength
+                        if currSize > realPartSize:
+                            currSize = lineLength
+                            f.close()
+                            partIndex += 1
+                            f = open(_part_dict_name_format % (
+                                output, partIndex), 'wb', buffering=1024 * 4)
+                else:
+                    for w in p:
+                        f.write(w + _linesep)
+                        progress += 1
+                        lineLength = len(w) + lineSeperatorLength
+                        currSize += lineLength
+                        if currSize > realPartSize:
+                            currSize = lineLength
+                            f.close()
+                            partIndex += 1
+                            f = open(_part_dict_name_format % (
+                                output, partIndex), 'wb', buffering=1024 * 4)
             else:
-                for w in p:
-                    f.write(w + _linesep)
-                    progress += 1
+                if len(productor.productors) > 1:  #complex rule
+                    for w in p:
+                        f.write(''.join(w) + _linesep)
+                        progress += 1
+                else:
+                    for w in p:
+                        f.write(w + _linesep)
+                        progress += 1
     finally:
         f.close()
     result[3] = 1

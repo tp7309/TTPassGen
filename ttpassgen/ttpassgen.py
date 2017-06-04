@@ -51,7 +51,7 @@ if sys.platform.startswith('win'):
     forking.Popen = _Popen
 
 class Process(multiprocessing.Process):
-    _Popen = _Popen
+    pass
 #Module multiprocessing end
 
 _modes = OrderedDict([

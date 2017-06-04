@@ -116,4 +116,4 @@ $0[_]?$1 -> word11word21 word11word22 word11_word21 word11_word22 word12word21 w
 ```
 
 # Update log
-[Update log]((https://github.com/tp7309/TTPassGen/blob/master/CHANGES.md)
+[Update log](https://github.com/tp7309/TTPassGen/blob/master/CHANGES.md)

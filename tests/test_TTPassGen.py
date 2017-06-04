@@ -37,7 +37,7 @@ class Test_ttpassgen(unittest.TestCase):
         if os.path.exists('testout.dict.1'): os.remove('testout.dict.1')
         if os.path.exists('testout.dict.2'): os.remove('testout.dict.2')
         if os.path.exists('testout.dict.3'): os.remove('testout.dict.3')
-        
+    
 
     def test_dict_copy_rule(self):
         self.assertEquals(go('$0'), 6)
@@ -56,13 +56,11 @@ class Test_ttpassgen(unittest.TestCase):
 
 
     def test_mask_charset_rule(self):
-        self.assertEquals(go('[?d]?'), 4)
+        self.assertEquals(go('[?d]?'), 11)
 
-
-    def test_mask_charset_rule(self):
-        self.assertEquals(go('[a?dA]{1:2}'), 144)
 
     def test_mask_charset_rule_with_range(self):
+        self.assertEquals(go('[a?dA]{1:2}'), 144)
         self.assertEquals(go('[?d]{2:2}'), 90)
         self.assertEquals(go('[?d]{2}'), 90)
     

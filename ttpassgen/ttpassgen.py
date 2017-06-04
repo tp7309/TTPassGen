@@ -96,7 +96,8 @@ class WordProductor(object):
         self.sizeList = sizeList
         self.productors = productors
 
-    def prod(self, iterable):
+    @classmethod
+    def prod(cls, iterable):
         p= 1
         for n in iterable: p *= n
         return p
@@ -174,7 +175,7 @@ def charsetWordProductorWrapper(func):
             yield ''.join(item) #loop optimization
     return wrapper
 
-@charsetWordProductorWrapper    
+@charsetWordProductorWrapper
 def charsetWordProductor(repeatMode, expandedCharset, length):
     if repeatMode == '?':
         return itertools.permutations(expandedCharset, r=length)
@@ -422,7 +423,7 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
 @click.option("--mode", "-m", show_default=True, default=0, type=click.INT, help="generation mode:\n\n" + formatDict(_modes))
 @click.option("--dictlist", "-d", type=click.STRING,
               help="read wordlist from the file, multi files should by seperated by comma.")
-@click.option("--rule", "-r", type=click.STRING, show_default=True, default="", 
+@click.option("--rule", "-r", type=click.STRING, show_default=True, default="",
               help="define word format, $0 means refer first file in wordlist, some built-in charsets:\n\n"
                 + formatDict(_built_in_charset) + "\n\nexample: [?dA]{1:2}$0\nview documentation for more information.")
 @click.option("--dict_cache", "-c", type=click.INT, show_default=True, default=500,

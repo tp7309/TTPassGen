@@ -194,7 +194,7 @@ def normalDictWordProductor(rule):
         return f.read().splitlines()
     
 
-def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, partSize, output):
+def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, partSize, appendMode, output):
     if not dictList and not rule:
         click.echo("dictlist and rule option must have at least one value!")
         return
@@ -216,7 +216,7 @@ def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, p
     print(("mode: %s, global_repeat_mode: %s, part_size: %s, dictlist: %s, rule: %s")
                % (_modes[mode], globalRepeatMode, prettySize(partSize * 1024 * 1024), dictFiles, rule))
     result = Array('i', [0, 0, 0, 0], lock=False) #[countDone, wordCount, progress, finishFlag]
-    p = Process(target=productCombinationWords, args=(rules, dictCache, partSize, output, result))
+    p = Process(target=productCombinationWords, args=(rules, dictCache, partSize, appendMode, output, result))
     p.start()
     while not result[0]: time.sleep(0.05)
     pbar = tqdm(total=result[1], unit=' word')
@@ -228,7 +228,7 @@ def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, p
         progress += delta
         pbar.update(delta)
     p.join()
-    pbar.update(pbar.total - progress)  #avoid stay at 99%
+    if (progress < pbar.total): pbar.update(pbar.total - progress)  #avoid stay at 99%
     pbar.close()
     click.echo("generate dict complete.")
 
@@ -318,7 +318,7 @@ def generateWordProductor(rules, dictCacheLimit):
     return WordProductor(wordCountList, wordSizeList, wordProductors)
 
 
-def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
+def productCombinationWords(rules, dictCacheLimit, partSize, appendMode, output, result):
     productor = generateWordProductor(rules, dictCacheLimit)
     result[1] = int(productor.totalCount())
     result[0] = 1
@@ -332,6 +332,8 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
     currSize = 0
     firstOutputFileName = output
     if realPartSize: firstOutputFileName = _part_dict_name_format%(output, partIndex)
+    lineSeperatorLength = len(_linesep)
+    fileMode = 'ab' if appendMode else 'wb'
 
     progress = 0
     def progressMonitor():
@@ -342,8 +344,7 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
 
     try:
         p = itertools.product(*productor.productors) if len(productor.productors) > 1 else productor.productors[0]
-        f = open(firstOutputFileName, 'wb', buffering=1024 * 4)
-        lineSeperatorLength = len(_linesep)
+        f = open(firstOutputFileName, fileMode, buffering=1024 * 4)
 
         if sys.version_info > (3, 0): #there will be a minimum of 10% performance improvement.
             if realPartSize:  # avoid condition code cost.
@@ -358,7 +359,7 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
                             f.close()
                             partIndex += 1
                             f = open(_part_dict_name_format % (
-                                output, partIndex), 'wb', buffering=1024 * 4)
+                                output, partIndex), fileMode, buffering=1024 * 4)
                 else:
                     for w in p:
                         f.write((w + _linesep).encode('utf-8'))
@@ -370,7 +371,7 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
                             f.close()
                             partIndex += 1
                             f = open(_part_dict_name_format % (
-                                output, partIndex), 'wb', buffering=1024 * 4)
+                                output, partIndex), fileMode, buffering=1024 * 4)
             else:
                 if len(productor.productors) > 1:  #complex rule
                     for w in p:
@@ -393,7 +394,7 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
                             f.close()
                             partIndex += 1
                             f = open(_part_dict_name_format % (
-                                output, partIndex), 'wb', buffering=1024 * 4)
+                                output, partIndex), fileMode, buffering=1024 * 4)
                 else:
                     for w in p:
                         f.write(w + _linesep)
@@ -405,7 +406,7 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
                             f.close()
                             partIndex += 1
                             f = open(_part_dict_name_format % (
-                                output, partIndex), 'wb', buffering=1024 * 4)
+                                output, partIndex), fileMode, buffering=1024 * 4)
             else:
                 if len(productor.productors) > 1:  #complex rule
                     for w in p:
@@ -434,10 +435,12 @@ def productCombinationWords(rules, dictCacheLimit, partSize, output, result):
               help="whether the character is allowd to repeat:\n\n" + formatDict(_repeat_modes))
 @click.option("--part_size", "-p", type=click.INT, default=0, show_default=True,
               help="when result data is huge, split package size(MB) will be applied, 0 is unlimited.")
+@click.option("--append_mode", "-a", type=click.INT, default=0, show_default=True,
+              help="append mode")
 @click.argument("output", type=click.Path())
-def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, output):
+def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, append_mode, output):
     if mode in _modes:
-        generateCombinationDict(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, output)
+        generateCombinationDict(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, append_mode, output)
     else:
         click.echo(
             "unknown mode, try use 'python TDictGen.py --help' for get more information.")

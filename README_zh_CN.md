@@ -23,7 +23,7 @@ pip install ttpassgen
 如果你使用的是Windows操作系统，可以直接下载[release version](https://github.com/tp7309/TTPassGen/releases)，这样就不需要Python环境了。
 
 # 使用要求
-Python 2 (version 2.7 or later), or Python 3 (version 3.2 or later).
+Python 2 (version 2.7 or later), or Python 3 (version 3.3 or later).
 如果你使用的是Windows操作系统，可以直接下载[release version](https://github.com/tp7309/TTPassGen/releases), 不需要Python环境。
 
 # 快速使用
@@ -65,6 +65,8 @@ Options:
                                  * = 0次或多次
                                  [default: ?]
   -p, --part_size INTEGER        每个输出文件的最大占用大小(MB)，0表示不管多在只输出到一个文件。
+                                 [default: 0]
+  -a, --append_mode INTEGER      是否将新输出的内容填加到OUTPUT中。
                                  [default: 0]
   --help                         Show this message and exit.
 ```

@@ -105,6 +105,8 @@ Options
       -p, --part_size INTEGER        when result data is huge, split package
                                      size(MB) will be applied, 0 is unlimited.
                                      [default: 0]
+        -a, --append_mode INTEGER    whether append content to OUTPUT or not.
+                                     [default: 0]
       --help                         Show this message and exit.
 
 generated password displayed line by line in ``OUTPUT``.

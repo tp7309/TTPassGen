@@ -24,10 +24,12 @@ pip install ttpassgen
 
 # 使用要求
 Python 2 (version 2.7 or later), or Python 3 (version 3.3 or later).
-如果你使用的是Windows操作系统，可以直接下载[release version](https://github.com/tp7309/TTPassGen/releases), 不需要Python环境。
+如果你使用的是Windows操作系统，不需要Python环境，也可以直接下载[release version](https://github.com/tp7309/TTPassGen/releases)。
 
 # 快速使用
-> 如何你有下载源码的话，在终端或命令提示符窗口中先切换ttpassgen目录下，下面有ttpassgen.py，如果是是使用ttpassgen.exe文件，那么注意最好在Windows的命令提示符窗口下执行命令。
+> 如何你要使用源码的话，在终端或命令提示符窗口中先切换ttpassgen目录下，下面有ttpassgen.py，如果是是使用ttpassgen.exe文件，那么注意最好在Windows的命令提示符窗口下执行命令。
+
+示例：生成单词列表输出到文件，单词格式为最前面是三个数字，只允许1,2,3，出现2或3次，后跟字母a或b。
 ```
 ttpassgen -r [123]{2:3}[ab] out.dict
 ```

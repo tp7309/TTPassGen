@@ -57,7 +57,7 @@ Quick Start
     the source code.
 
 Example: Generate word list output to file, the word format is prefix
-three digits, range 123, appear 2 to 3 times, followed by letter a or b.
+three digits, only allow 1、2、3, appear 2 or 3 times, followed by letter a or b.
 
 ::
 

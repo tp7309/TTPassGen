@@ -56,7 +56,7 @@ Quick Start
     Switch to the project's ``ttpassgen`` directory if you downloaded
     the source code.
 
-Example: Generate word list output to file, the word format is prefix
+Example: Generate word list output to `out.dict`, the word format is prefix
 three digits, only allow 1、2、3, appear 2 or 3 times, followed by letter a or b.
 
 ::

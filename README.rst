@@ -136,8 +136,8 @@ Repeat mode
 
 ::
 
-    *ttpassgen --dictlist in.dict,in2.dict --rule $0[_]?$1 out.dict*
-    when dictlist option defined as #in.dict,in2.dict#,
+    ttpassgen --dictlist in.dict,in2.dict --rule $0[_]?$1 out.dict
+    when dictlist option defined as `in.dict,in2.dict`,
     in.dict content:
     word11
     word12

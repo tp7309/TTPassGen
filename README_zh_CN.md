@@ -97,8 +97,8 @@ repeatMode为 `*`, [123]{1,2} -> 1 2 3 11 12 13 21 22 23 31 32 33
 
 **$no** 引用`dictlist`选项中的输入文件的内容。
 ```
-*ttpassgen --dictlist in.dict,in2.dict --rule $0[_]?$1 out.dict*
-例如当`distlist`选项定义为 #in.dict,in2.dict# 时，
+ttpassgen --dictlist in.dict,in2.dict --rule $0[_]?$1 out.dict
+例如当`distlist`选项定义为 `in.dict,in2.dict` 时，
 in.dict文件内容:
 word11
 word12

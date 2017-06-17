@@ -22,7 +22,7 @@ README i18n: [中文说明](https://github.com/tp7309/TTPassGen/blob/master/READ
 ```
 pip install ttpassgen
 ```
-if you are using the windows operating system, you could just use the [release version](https://github.com/tp7309/TTPassGen/releases)
+if you are using the windows operating system, you could just use the [release version](https://github.com/tp7309/TTPassGen/releases).
 
 # Requirements
 Python 2 (version 2.7 or later), or Python 3 (version 3.3 or later).
@@ -103,8 +103,8 @@ same as `[]{n:n:r}`.
 
 **$no** ref dict file index from `dictlist` option.
 ```
-*ttpassgen --dictlist in.dict,in2.dict --rule $0[_]?$1 out.dict*
-when dictlist option defined as #in.dict,in2.dict#,
+ttpassgen --dictlist in.dict,in2.dict --rule $0[_]?$1 out.dict
+when dictlist option defined as `in.dict,in2.dict`,
 in.dict content:
 word11
 word12

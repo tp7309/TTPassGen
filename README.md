@@ -15,7 +15,7 @@ README i18n: [中文说明](https://github.com/tp7309/TTPassGen/blob/master/READ
 - time-consuming estimates, output size estimates, and real-time progress reports.
 - unicode word support by using wordlist option.
 - Generation of large amounts of passwords at once, no output size limit.
-- it can breakup output by file size.
+- it can split output by file size.
 
 # Install
 `TTPassGen` can be easily installed using pip:

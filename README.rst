@@ -31,7 +31,7 @@ Features
 -  unicode word support by using wordlist option.
 -  Generation of large amounts of passwords at once, no output size
    limit.
--  it can breakup output by file size.
+-  it can split output by file size.
 
 Install
 =======

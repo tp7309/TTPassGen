@@ -72,10 +72,19 @@ _repeat_modes = OrderedDict([
     ("*", "0 or more repetitions")
 ])
 
+_special_seperators_name = OrderedDict([
+    ("&#160;", "one space")
+])
+
+_special_seperators = OrderedDict([
+    ("&#160;", " ")
+])
+
+
 _part_dict_name_format = '%s.%d'
 
-_linesep = os.linesep
 
+#Rule class start
 class CharsetRule(object):
     def __init__(self, minLength, maxLength, charset, repeatMode):
         self.minLength = minLength;
@@ -110,8 +119,9 @@ class WordProductor(object):
         tCount = self.totalCount()
         for i, size in enumerate(self.sizeList):
             total += size * tCount / self.countList[i]
-        total += tCount * len(_linesep)
+        total += tCount * len(os.linesep)
         return total
+#Rule class end
 
 
 def prettySize(size_bytes):
@@ -163,7 +173,7 @@ def getDictRuleResultDataSize(rule):
         while chunk:
             sumLines += chunk.count('\n')
             chunk = readFunc(bufferSize)
-    linSeperatorCount = len(_linesep) * sumLines
+    linSeperatorCount = len(os.linesep) * sumLines
     return sumLines, (os.path.getsize(rule.dictPath) - linSeperatorCount)
 
 
@@ -194,7 +204,7 @@ def normalDictWordProductor(rule):
         return f.read().splitlines()
     
 
-def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, partSize, appendMode, output):
+def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, partSize, appendMode, seperator, output):
     if not dictList and not rule:
         click.echo("dictlist and rule option must have at least one value!")
         return
@@ -216,7 +226,7 @@ def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, p
     print(("mode: %s, global_repeat_mode: %s, part_size: %s, dictlist: %s, rule: %s")
                % (_modes[mode], globalRepeatMode, prettySize(partSize * 1024 * 1024), dictFiles, rule))
     result = Array('i', [0, 0, 0, 0], lock=False) #[countDone, wordCount, progress, finishFlag]
-    p = Process(target=productCombinationWords, args=(rules, dictCache, partSize, appendMode, output, result))
+    p = Process(target=productCombinationWords, args=(result, rules, dictCache, partSize, appendMode, seperator, output))
     p.start()
     while not result[0]: time.sleep(0.05)
     pbar = tqdm(total=result[1], unit=' word')
@@ -318,7 +328,7 @@ def generateWordProductor(rules, dictCacheLimit):
     return WordProductor(wordCountList, wordSizeList, wordProductors)
 
 
-def productCombinationWords(rules, dictCacheLimit, partSize, appendMode, output, result):
+def productCombinationWords(result, rules, dictCacheLimit, partSize, appendMode, seperator, output):
     productor = generateWordProductor(rules, dictCacheLimit)
     result[1] = int(productor.totalCount())
     result[0] = 1
@@ -332,7 +342,12 @@ def productCombinationWords(rules, dictCacheLimit, partSize, appendMode, output,
     currSize = 0
     firstOutputFileName = output
     if realPartSize: firstOutputFileName = _part_dict_name_format%(output, partIndex)
-    lineSeperatorLength = len(_linesep)
+
+    wordSeperator = os.linesep
+    if seperator:
+        wordSeperator = _special_seperators[seperator] if seperator in _special_seperators else seperator
+
+    lineSeperatorLength = len(wordSeperator)
     fileMode = 'ab' if appendMode else 'wb'
 
     progress = 0
@@ -350,7 +365,7 @@ def productCombinationWords(rules, dictCacheLimit, partSize, appendMode, output,
             if realPartSize:  # avoid condition code cost.
                 if len(productor.productors) > 1:  # complex rule
                     for w in p:
-                        f.write((''.join(w) + _linesep).encode('utf-8'))
+                        f.write((''.join(w) + wordSeperator).encode('utf-8'))
                         progress += 1
                         lineLength = len(w) + lineSeperatorLength
                         currSize += lineLength
@@ -362,7 +377,7 @@ def productCombinationWords(rules, dictCacheLimit, partSize, appendMode, output,
                                 output, partIndex), fileMode, buffering=1024 * 4)
                 else:
                     for w in p:
-                        f.write((w + _linesep).encode('utf-8'))
+                        f.write((w + wordSeperator).encode('utf-8'))
                         progress += 1
                         lineLength = len(w) + lineSeperatorLength
                         currSize += lineLength
@@ -375,17 +390,17 @@ def productCombinationWords(rules, dictCacheLimit, partSize, appendMode, output,
             else:
                 if len(productor.productors) > 1:  #complex rule
                     for w in p:
-                        f.write((''.join(w) + _linesep).encode('utf-8'))
+                        f.write((''.join(w) + wordSeperator).encode('utf-8'))
                         progress += 1
                 else:
                     for w in p:
-                        f.write((w + _linesep).encode('utf-8'))
+                        f.write((w + wordSeperator).encode('utf-8'))
                         progress += 1
         else:
             if realPartSize:  # avoid condition code cost.
                 if len(productor.productors) > 1:  # complex rule
                     for w in p:
-                        f.write(''.join(w) + _linesep)
+                        f.write(''.join(w) + wordSeperator)
                         progress += 1
                         lineLength = len(w) + lineSeperatorLength
                         currSize += lineLength
@@ -397,7 +412,7 @@ def productCombinationWords(rules, dictCacheLimit, partSize, appendMode, output,
                                 output, partIndex), fileMode, buffering=1024 * 4)
                 else:
                     for w in p:
-                        f.write(w + _linesep)
+                        f.write(w + wordSeperator)
                         progress += 1
                         lineLength = len(w) + lineSeperatorLength
                         currSize += lineLength
@@ -410,11 +425,11 @@ def productCombinationWords(rules, dictCacheLimit, partSize, appendMode, output,
             else:
                 if len(productor.productors) > 1:  #complex rule
                     for w in p:
-                        f.write(''.join(w) + _linesep)
+                        f.write(''.join(w) + wordSeperator)
                         progress += 1
                 else:
                     for w in p:
-                        f.write(w + _linesep)
+                        f.write(w + wordSeperator)
                         progress += 1
     finally:
         f.close()
@@ -436,11 +451,13 @@ def productCombinationWords(rules, dictCacheLimit, partSize, appendMode, output,
 @click.option("--part_size", "-p", type=click.INT, default=0, show_default=True,
               help="when result data is huge, split package size(MB) will be applied, 0 is unlimited.")
 @click.option("--append_mode", "-a", type=click.INT, default=0, show_default=True,
-              help="append mode")
+              help="whether append content to OUTPUT or not.")
+@click.option("--seperator", "-s", type=click.STRING, default='', show_default=True,
+              help="word seperator, by default, each word occupies one line. special char:\n\n" + formatDict(_special_seperators_name))
 @click.argument("output", type=click.Path())
-def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, append_mode, output):
+def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, append_mode, seperator, output):
     if mode in _modes:
-        generateCombinationDict(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, append_mode, output)
+        generateCombinationDict(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, append_mode, seperator, output)
     else:
         click.echo(
             "unknown mode, try use 'python TDictGen.py --help' for get more information.")
@@ -449,5 +466,5 @@ def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, append_
 if __name__ == "__main__":
     # On Windows calling this function is necessary.
     multiprocessing.freeze_support()
-    # cli.main(['-d', '../tests/in.dict', '-r', '[?d]{2}$0', 'out.dict'])
     cli()
+    # cli.main(['-d', '../tests/in.dict', '-r', '[?d]{2}$0', 'out.dict'])

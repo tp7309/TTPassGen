@@ -18,9 +18,9 @@ class Test_ttpassgen(unittest.TestCase):
         global lc
         lc = lc_func
 
-        def go_func(rule, dictlist='tests/in.dict', partSize=0, diskCache=500, repeatMode='?'):
+        def go_func(rule, dictlist='tests/in.dict', partSize=0, diskCache=500, repeatMode='?', seperator=None):
             try:
-                ttpassgen.cli.main(['-m', 0, '-d', dictlist, '-r', rule, '-g', repeatMode, '-c', diskCache, '-p', partSize, 'testout.dict'])
+                ttpassgen.cli.main(['-m', 0, '-d', dictlist, '-r', rule, '-g', repeatMode, '-c', diskCache, '-p', partSize, '-s', seperator, 'testout.dict'])
             except(SystemExit):
                 pass
             return lc()
@@ -69,6 +69,11 @@ class Test_ttpassgen(unittest.TestCase):
         self.assertEquals(go('$0[abc]?'), 24)
 
 
+    def test_word_seperator(self):
+        self.assertEquals(go('$0[abc]?', seperator='&#160;'), 1)
+
+    
+
     def test_multi_dict_mark_charset_rule(self):
         with open('in2.dict', 'wb') as f:
             content = ['q00', 'q01']
@@ -97,7 +102,7 @@ class Test_ttpassgen(unittest.TestCase):
             totalLine += len(f.readlines())
         with open('testout.dict.2', 'r') as f:
             totalLine += len(f.readlines())
-        if len(ttpassgen._linesep) > 1:
+        if len(os.linesep) > 1:
             with open('testout.dict.3', 'r') as f:
                 totalLine += len(f.readlines())
 

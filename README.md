@@ -75,6 +75,11 @@ Options:
                                  [default: 0]
   -a, --append_mode INTEGER      whether append content to OUTPUT or not.
                                  [default: 0]
+  -s, --seperator TEXT           word seperator, by default, each word
+                                 occupies one line. special char:
+
+                                 &#160; = one space
+                                 [default: ]
   --help                         Show this message and exit.
 ```
 generated password displayed line by line in `OUTPUT`. It is recommended to use notepad ++ to open file(`utf-8`).
@@ -103,7 +108,7 @@ same as `[]{n:n:r}`.
 
 **$no** ref dict file index from `dictlist` option.
 ```
-ttpassgen --dictlist in.dict,in2.dict --rule $0[_]?$1 out.dict
+ttpassgen --dictlist in.dict,in2.dict --rule $0[_]?$1 -s "&#160;" out.dict
 when dictlist option defined as `in.dict,in2.dict`,
 in.dict content:
 word11

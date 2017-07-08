@@ -22,7 +22,7 @@ Features
    so on.
 -  support all characters or words(from wordlist option) that can make
    up a password, some built-in charset has been provided, such as
-   alphabetical lists and numeric lists.
+   alphabetical list and numeric list.
 -  you can specify the order and frequency of each element in the word.
 -  simple rule format, and easy to use, rule could be defined similar
    regex's style.

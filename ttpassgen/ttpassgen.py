@@ -220,7 +220,7 @@ def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, p
                 echoCommonTips("dictlist")
                 return
             
-    if not globalRepeatMode or not re.match(r"\??\*?", globalRepeatMode):
+    if not globalRepeatMode or not re.match(r"\?|\*", globalRepeatMode):
         echoCommonTips("global_repeat_mode")
 
     print(("mode: %s, global_repeat_mode: %s, part_size: %s, dictlist: %s, rule: %s")

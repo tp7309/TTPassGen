@@ -9,7 +9,7 @@ README i18n: [中文说明](https://github.com/tp7309/TTPassGen/blob/master/READ
 
 # Features
 - generate password use combination、permulation、conditional rules and so on.
-- support all characters or words(from wordlist option) that can make up a password, some built-in charset has been provided, such as alphabetical lists and numeric lists.
+- support all characters or words(from wordlist option) that can make up a password, some built-in charset has been provided, such as alphabetical list and numeric list.
 - you can specify the order and frequency of each element in the word.
 - simple rule format, and easy to use, rule could be defined similar regex's style.
 - time-consuming estimates, output size estimates, and real-time progress reports.

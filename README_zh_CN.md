@@ -74,7 +74,7 @@ Options:
 
                                  &#160; = 一个空格
                                  [default: ]
-  --help                         Show this message and exit.
+  --help                         显示帮助信息。
 ```
 输出文件采用utf-8编码，每个密码占一行，推荐使用notepad++打开。
 

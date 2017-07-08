@@ -54,6 +54,10 @@ class Test_ttpassgen(unittest.TestCase):
     def test_charset_rule_with_range(self):
         self.assertEquals(go('[abc]{2:3}'), 12)
 
+    
+    def test_charset_rule_with_global_repeat_mode(self):
+        self.assertEquals(go('[abc]{2:3}', repeatMode='*'), 36)
+
 
     def test_mask_charset_rule(self):
         self.assertEquals(go('[?d]?'), 11)

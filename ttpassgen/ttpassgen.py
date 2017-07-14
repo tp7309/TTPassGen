@@ -361,9 +361,10 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize, appendMode,
         p = itertools.product(*productor.productors) if len(productor.productors) > 1 else productor.productors[0]
         f = open(firstOutputFileName, fileMode, buffering=1024 * 4)
 
+        # wrap f.write('content') as func will reduce the generation speed, so remain if...elif...
         if sys.version_info > (3, 0): #there will be a minimum of 10% performance improvement.
             if realPartSize:  # avoid condition code cost.
-                if len(productor.productors) > 1:  # complex rule
+                if len(productor.productors) > 1:  # complex rule, more join cost.
                     for w in p:
                         f.write((''.join(w) + wordSeperator).encode('utf-8'))
                         progress += 1
@@ -388,7 +389,7 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize, appendMode,
                             f = open(_part_dict_name_format % (
                                 output, partIndex), fileMode, buffering=1024 * 4)
             else:
-                if len(productor.productors) > 1:  #complex rule
+                if len(productor.productors) > 1:  # complex rule, more join cost.
                     for w in p:
                         f.write((''.join(w) + wordSeperator).encode('utf-8'))
                         progress += 1
@@ -398,7 +399,7 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize, appendMode,
                         progress += 1
         else:
             if realPartSize:  # avoid condition code cost.
-                if len(productor.productors) > 1:  # complex rule
+                if len(productor.productors) > 1:  # complex rule, more join cost.
                     for w in p:
                         f.write(''.join(w) + wordSeperator)
                         progress += 1
@@ -423,7 +424,7 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize, appendMode,
                             f = open(_part_dict_name_format % (
                                 output, partIndex), fileMode, buffering=1024 * 4)
             else:
-                if len(productor.productors) > 1:  #complex rule
+                if len(productor.productors) > 1:  # complex rule, more join cost.
                     for w in p:
                         f.write(''.join(w) + wordSeperator)
                         progress += 1
@@ -467,4 +468,4 @@ if __name__ == "__main__":
     # On Windows calling this function is necessary.
     multiprocessing.freeze_support()
     cli()
-    # cli.main(['-d', '../tests/in.dict', '-r', '[?d]{2}$0', 'out.dict'])
+    # cli.main(['-d', '../tests/in.dict', '-r', '[?l]{5}', 'out.dict'])

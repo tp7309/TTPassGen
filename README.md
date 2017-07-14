@@ -82,7 +82,7 @@ Options:
                                  [default: ]
   --help                         Show this message and exit.
 ```
-generated password displayed line by line in `OUTPUT`. It is recommended to use notepad ++ to open file(`utf-8`).
+generated password displayed line by line in `OUTPUT`. It is recommended to use Notepad++ to open this file(`utf-8`).
 
 # Examples
 **[]**  Used to include charset

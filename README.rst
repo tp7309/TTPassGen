@@ -114,7 +114,7 @@ Options
                                      [default: ]
       --help                         Show this message and exit.
 
-generated password displayed line by line in ``OUTPUT``.
+generated password displayed line by line in ``OUTPUT``. It is recommended to use Notepad++ to open this file(``utf-8``).
 
 Examples
 ========

@@ -124,9 +124,8 @@ class Test_ttpassgen(unittest.TestCase):
             totalLine += len(f.readlines())
         with open('testout.dict.2', 'r') as f:
             totalLine += len(f.readlines())
-        if len(os.linesep) > 1:
-            with open('testout.dict.3', 'r') as f:
-                totalLine += len(f.readlines())
+        with open('testout.dict.3', 'r') as f:
+            totalLine += len(f.readlines())
 
         #actual value: 1024 * 1, why 24 difference? I like do it>_>
         self.assertTrue(1000 <= os.path.getsize('testout.dict.1') / 1024 <= 1048)

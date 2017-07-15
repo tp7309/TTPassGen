@@ -204,7 +204,8 @@ def normalDictWordProductor(rule):
         return f.read().splitlines()
     
 
-def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, partSize, appendMode, seperator, output):
+def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, partSize, 
+    appendMode, seperator, debug_mode, output):
     if not dictList and not rule:
         click.echo("dictlist and rule option must have at least one value!")
         return
@@ -212,6 +213,7 @@ def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, p
     if not rules:
         echoCommonTips("rule")
         return
+    
     dictFiles = []
     if dictList:
         dictFiles = re.split(r',\s*', dictList) if dictList else []
@@ -222,12 +224,16 @@ def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, p
             
     if not globalRepeatMode or not re.match(r"\?|\*", globalRepeatMode):
         echoCommonTips("global_repeat_mode")
+        return
 
     print(("mode: %s, global_repeat_mode: %s, part_size: %s, dictlist: %s, rule: %s")
                % (_modes[mode], globalRepeatMode, prettySize(partSize * 1024 * 1024), dictFiles, rule))
     result = Array('i', [0, 0, 0, 0], lock=False) #[countDone, wordCount, progress, finishFlag]
-    p = Process(target=productCombinationWords, args=(result, rules, dictCache, partSize, appendMode, seperator, output))
-    p.start()
+    if not debug_mode:
+        worker = Process(target=productCombinationWords, args=(result, rules, dictCache, partSize, appendMode, seperator, output))
+    else:
+        worker = threading.Thread(target=productCombinationWords, args=(result, rules, dictCache, partSize, appendMode, seperator, output))
+    worker.start()
     while not result[0]: time.sleep(0.05)
     pbar = tqdm(total=result[1], unit=' word')
     progress = 0
@@ -237,7 +243,7 @@ def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, p
         delta = result[2] - progress
         progress += delta
         pbar.update(delta)
-    p.join()
+    worker.join()
     if (progress < pbar.total): pbar.update(pbar.total - progress)  #avoid stay at 99%
     pbar.close()
     click.echo("generate dict complete.")
@@ -246,16 +252,12 @@ def generateCombinationDict(mode, dictList, rule, dictCache, globalRepeatMode, p
 def extractRules(dictList, rule, globalRepeatMode):
     splitedDict = re.split(r',\s*', dictList) if dictList else []
     dictCount = len(splitedDict)
-    reCharset = r"(\[([^\]]+?)\](\?|(\{\d+:\d+(:[\?\*])?\})|(\{\d+(:[\?\*])?\}))?)"
+    reCharset = r"(\[([^\]]+?)\](\?|(\{-?\d+:-?\d+(:[\?\*])?\})|(\{-?\d+(:[\?\*])?\}))?)"
     reDict = r"(\$(\d{1,%s}))"%(dictCount if dictCount > 0 else 1)
     reRule = r"%s|%s"%(reCharset, reDict)
-    match = re.match(reRule, rule)
-    if not match:
-        return None
-
     rules = []
-    matches = re.findall(reRule, rule)
     matchesLength = 0
+    matches = re.findall(reRule, rule)
     try:
         for match in matches:
             match = list(filter(len, match)) #may have some empty element
@@ -272,7 +274,7 @@ def extractRules(dictList, rule, globalRepeatMode):
                 if len(match) > 2:
                     lenInfo = match[2][1:-1].split(':')
                     if len(lenInfo) >= 2:
-                        if re.match('\d', lenInfo[1]):  #[]{minLength:maxLength:repeatMode}
+                        if re.match('-?\d+', lenInfo[1]):  #[]{minLength:maxLength:repeatMode}
                             minLength = int(lenInfo[0])
                             maxLength = int(lenInfo[1])
                             if (len(lenInfo) > 2):
@@ -292,7 +294,7 @@ def extractRules(dictList, rule, globalRepeatMode):
                 rules.append(charsetRule)
     except IndexError:
         return None
-    if not len(rule) == matchesLength: return None
+    if matchesLength <= 0: return None
     return rules
 
 
@@ -366,9 +368,10 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize, appendMode,
             if realPartSize:  # avoid condition code cost.
                 if len(productor.productors) > 1:  # complex rule, more join cost.
                     for w in p:
-                        f.write((''.join(w) + wordSeperator).encode('utf-8'))
+                        content = (''.join(w) + wordSeperator).encode('utf-8')
+                        f.write(content)
                         progress += 1
-                        lineLength = len(w) + lineSeperatorLength
+                        lineLength = len(content)
                         currSize += lineLength
                         if currSize > realPartSize:
                             currSize = lineLength
@@ -378,9 +381,10 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize, appendMode,
                                 output, partIndex), fileMode, buffering=1024 * 4)
                 else:
                     for w in p:
-                        f.write((w + wordSeperator).encode('utf-8'))
+                        content = (w + wordSeperator).encode('utf-8')
+                        f.write(content)
                         progress += 1
-                        lineLength = len(w) + lineSeperatorLength
+                        lineLength = len(content)
                         currSize += lineLength
                         if currSize > realPartSize:
                             currSize = lineLength
@@ -401,9 +405,10 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize, appendMode,
             if realPartSize:  # avoid condition code cost.
                 if len(productor.productors) > 1:  # complex rule, more join cost.
                     for w in p:
-                        f.write(''.join(w) + wordSeperator)
+                        content = ''.join(w) + wordSeperator
+                        f.write(content)
                         progress += 1
-                        lineLength = len(w) + lineSeperatorLength
+                        lineLength = len(content)
                         currSize += lineLength
                         if currSize > realPartSize:
                             currSize = lineLength
@@ -413,9 +418,10 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize, appendMode,
                                 output, partIndex), fileMode, buffering=1024 * 4)
                 else:
                     for w in p:
-                        f.write(w + wordSeperator)
+                        content = w + wordSeperator
+                        f.write(content)
                         progress += 1
-                        lineLength = len(w) + lineSeperatorLength
+                        lineLength = len(content)
                         currSize += lineLength
                         if currSize > realPartSize:
                             currSize = lineLength
@@ -455,17 +461,20 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize, appendMode,
               help="whether append content to OUTPUT or not.")
 @click.option("--seperator", "-s", type=click.STRING, default='', show_default=True,
               help="word seperator, by default, each word occupies one line. special char:\n\n" + formatDict(_special_seperators_name))
+@click.option("--debug_mode", type=click.INT, default=0, show_default=True,
+              help="set 1 for enter debug mode.")
 @click.argument("output", type=click.Path())
-def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, append_mode, seperator, output):
+def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, append_mode, seperator, debug_mode, output):
+    # On Windows calling this function is necessary.
+    multiprocessing.freeze_support()
+    
     if mode in _modes:
-        generateCombinationDict(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, append_mode, seperator, output)
+        generateCombinationDict(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, append_mode, seperator, debug_mode, output)
     else:
         click.echo(
             "unknown mode, try use 'python TDictGen.py --help' for get more information.")
 
 
 if __name__ == "__main__":
-    # On Windows calling this function is necessary.
-    multiprocessing.freeze_support()
     cli()
-    # cli.main(['-d', '../tests/in.dict', '-r', '[?l]{5}', 'out.dict'])
+    # cli.main(['-d', 'tests/in.dict', '-r', '[?l]{5}', out.dict'])

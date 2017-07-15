@@ -60,3 +60,6 @@ setup(
 
 #auto generate requirements.txt
 #pip freeze > requirements.txt
+
+#view coverage report
+#coverage html -d coverage_html

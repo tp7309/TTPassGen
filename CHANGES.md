@@ -17,5 +17,5 @@
 - 提高输出字典大小预估准确度。
 
 ## V1.0.2
-- add append_mode、seperator、debug_mode options.
-- more tests.
+- 增加append_mode、seperator、debug_mode选项。
+- 修改一些选项错误校验，增加更多测试用例。

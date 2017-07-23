@@ -1,8 +1,8 @@
 # Update log
 
 ## V1.0.2
-- 增加append_mode、seperator、debug_mode选项。
-- 修改一些选项错误校验，增加更多测试用例。
+- add append_mode、seperator、debug_mode options.
+- more tests.
 
 ## V1.0.1
 - Compatible with Python3.

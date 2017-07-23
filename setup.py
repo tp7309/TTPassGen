@@ -37,7 +37,7 @@ setup(
         license='Apache License Version 2.0',
         keywords='python ttpassgen password-generator wordlist password-dict password-dict-generator brute-force word-combination',
         long_description=long_description,
-        packages=find_packages(),
+        packages=find_packages(exclude=['docs', 'tests*']),
         include_package_data=True,
         install_requires=install_requires,
         entry_points={

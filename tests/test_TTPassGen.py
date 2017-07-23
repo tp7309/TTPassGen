@@ -101,6 +101,7 @@ class Test_ttpassgen(unittest.TestCase):
 
     def test_word_seperator(self):
         self.assertEquals(go('$0[abc]?', seperator='&#160;'), 1)
+        self.assertEquals(go('$0[abc]?', seperator='-------------------------\n'), 24)
     
 
     def test_multi_dict_mark_charset_rule(self):

@@ -97,7 +97,7 @@ class DictRule(object):
     def __init__(self, order, dictPath):
         self.order = order;
         self.dictPath = dictPath;
-
+#Rule class end
 
 class WordProductor(object):
     def __init__(self, countList, sizeList, productors):
@@ -114,14 +114,13 @@ class WordProductor(object):
     def totalCount(self):
         return self.prod(self.countList)
     
-    def totalSize(self):
+    def totalSize(self, sep=os.linesep):
         total = 0
         tCount = self.totalCount()
         for i, size in enumerate(self.sizeList):
             total += size * tCount / self.countList[i]
-        total += tCount * len(os.linesep)
+        total += tCount * len(sep)
         return total
-#Rule class end
 
 
 def prettySize(size_bytes):
@@ -164,16 +163,19 @@ def getCharsetRuleResultDataSize(rule):
             size += count * wordLength
     return count, size
 
+
 def getDictRuleResultDataSize(rule):
     sumLines = 0
+    sepLen = 1
     with open(rule.dictPath, 'r') as f:
         bufferSize = 1024 * 4
         readFunc = f.read #loop optimization
         chunk = readFunc(bufferSize)
+        if '\r\n' in chunk: sepLen = 2
         while chunk:
             sumLines += chunk.count('\n')
             chunk = readFunc(bufferSize)
-    linSeperatorCount = len(os.linesep) * sumLines
+    linSeperatorCount = sepLen * sumLines
     return sumLines, (os.path.getsize(rule.dictPath) - linSeperatorCount)
 
 
@@ -334,7 +336,7 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize, appendMode,
     productor = generateWordProductor(rules, dictCacheLimit)
     result[1] = int(productor.totalCount())
     result[0] = 1
-    estimatedSize = prettySize(productor.totalSize())
+    estimatedSize = prettySize(productor.totalSize(sep=seperator))
     print(("estimated size: %s, generate dict...")%(estimatedSize))
 
     if not os.path.exists(os.path.abspath(os.path.join(output, os.path.pardir))):
@@ -477,4 +479,4 @@ def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, append_
 
 if __name__ == "__main__":
     cli()
-    # cli.main(['-d', 'tests/in.dict', '-r', '[?l]{5}', out.dict'])
+    # cli.main(['-d', '../tests/in.dict', '-r', '[?l]{5}', 'out.dict'])

@@ -132,8 +132,8 @@ Repeat mode
 
 ::
 
-    when repeatMode is `?`, [123]{1,2} -> 1 2 3 12 13 21 23 31 32
-    when repeatMode is `*`, [123]{1,2} -> 1 2 3 11 12 13 21 22 23 31 32 33
+    when repeatMode is `?`, [123]{1,2:?} -> 1 2 3 12 13 21 23 31 32
+    when repeatMode is `*`, [123]{1,2:*} -> 1 2 3 11 12 13 21 22 23 31 32 33
 
 **[]{minLength:maxLength}** default use ``global_repeat_mode`` option.
 

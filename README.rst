@@ -80,7 +80,7 @@ Options
       -d, --dictlist TEXT            read wordlist from the file, multi files
                                      should by seperated by comma.
       -r, --rule TEXT                define word format, $0 means refer first
-                                     file in wordlist, some built-in charsets:
+                                     file in dictlist option, some built-in charsets:
 
                                      ?l = abcdefghijklmnopqrstuvwxyz
                                      ?u = ABCDEFGHIJKLMNOPQRSTUVWXYZ
@@ -119,14 +119,14 @@ generated password displayed line by line in ``OUTPUT``. It is recommended to us
 Examples
 ========
 
-**[]** Used to include charset
+**[]** Used to wrap charset.
 
 Repeat mode
 -----------
 
 **[]** 1 repetitions. ``[123] -> 1 2 3``
 
-**[]?** 0 or 1 repetitions ``[123] -> '' 1 2 3``
+**[]?** 0 or 1 repetitions. ``[123] -> '' 1 2 3``
 
 **[]{minLength:maxLength:repeatMode}**
 

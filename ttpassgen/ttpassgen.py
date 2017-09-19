@@ -444,6 +444,7 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize, appendMode,
         f.close()
     result[3] = 1
 
+
 @click.command()
 @click.option("--mode", "-m", show_default=True, default=0, type=click.INT, help="generation mode:\n\n" + formatDict(_modes))
 @click.option("--dictlist", "-d", type=click.STRING,
@@ -474,7 +475,7 @@ def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, append_
         generateCombinationDict(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size, append_mode, seperator, debug_mode, output)
     else:
         click.echo(
-            "unknown mode, try use 'python TDictGen.py --help' for get more information.")
+            "unknown mode, try use 'python TTDictGen.py --help' for get more information.")
 
 
 if __name__ == "__main__":

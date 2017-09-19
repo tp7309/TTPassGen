@@ -6,7 +6,7 @@ myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 from ttpassgen import ttpassgen
 
-#test/in.dict generate by: ttpassgen.py -r [123]{3:3} in.dict
+#tests/in.dict generate by: ttpassgen -r [123]{3} in.dict
 class Test_ttpassgen(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

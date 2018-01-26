@@ -68,7 +68,7 @@ Options:
                                  [default: ?]
   -p, --part_size INTEGER        每个输出文件的最大占用大小(MB)，0表示不管数据量多大只输出到一个文件。
                                  [default: 0]
-  -a, --append_mode INTEGER      是否将新输出的内容填加到OUTPUT中。
+  -a, --append_mode INTEGER      是否将新输出的内容追加到OUTPUT中。
                                  [default: 0]
   -s, --seperator TEXT           单词分隔符，默认是当前平台的换行符，特殊换行符：
 

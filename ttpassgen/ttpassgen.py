@@ -78,25 +78,25 @@ _PART_DICT_NAME_FORMAT = '%s.%d'
 # Rule class start
 class CharsetRule(object):
     def __init__(self, min_length, max_length, charset, repeat_mode):
-        self.minLength = min_length
-        self.maxLength = max_length
+        self.min_length = min_length
+        self.max_length = max_length
         self.charset = charset
-        self.repeatMode = repeat_mode
+        self.repeat_mode = repeat_mode
 
 
 class DictRule(object):
-    def __init__(self, order, dictPath):
+    def __init__(self, order, dict_path):
         self.order = order
-        self.dictPath = dictPath
+        self.dict_path = dict_path
 
 
 # Rule class end
 
 
 class WordProductor(object):
-    def __init__(self, countList, sizeList, productors):
-        self.countList = countList
-        self.sizeList = sizeList
+    def __init__(self, count_list, size_list, productors):
+        self.count_list = count_list
+        self.size_list = size_list
         self.productors = productors
 
     @classmethod
@@ -106,19 +106,19 @@ class WordProductor(object):
             p *= n
         return p
 
-    def totalCount(self):
-        return self.prod(self.countList)
+    def total_count(self):
+        return self.prod(self.count_list)
 
-    def totalSize(self, sep=os.linesep):
+    def total_size(self, sep=os.linesep):
         total = 0
-        tCount = self.totalCount()
-        for i, size in enumerate(self.sizeList):
-            total += size * tCount / self.countList[i]
-        total += tCount * len(sep)
+        count = self.total_count()
+        for i, size in enumerate(self.size_list):
+            total += size * count / self.count_list[i]
+        total += count * len(sep)
         return total
 
 
-def prettySize(size_bytes):
+def pretty_size(size_bytes):
     if size_bytes == 0:
         return "0 Bytes"
     size_name = ("Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
@@ -128,58 +128,58 @@ def prettySize(size_bytes):
     return "%s %s" % (s, size_name[i])
 
 
-def formatDict(d):
+def format_dict(d):
     return '\n'.join(['%s = %s' % (key, value) for (key, value) in d.items()])
 
 
-def getExpandedCharset(charset):
-    expandedCharset = charset
+def get_expanded_charset(charset):
+    expanded_charset = charset
     for (key, value) in _BUILT_IN_CHARSET.items():
-        expandedCharset = expandedCharset.replace(key, value)
-    return expandedCharset
+        expanded_charset = expanded_charset.replace(key, value)
+    return expanded_charset
 
 
-def echo_tips(varName):
+def echo_tips(var_name):
     click.echo(
         "%s is invalid, , try use 'python TDictGen.py --help' for get more information."
-        % (varName))
+        % (var_name))
 
 
-def getCharsetRuleResultDataSize(rule):
+def get_charset_rule_data_size(rule):
     size = count = float(0)
-    if rule.repeatMode == '?':
-        for wordLength in range(rule.minLength, rule.maxLength + 1):
-            subSum = 1
+    if rule.repeat_mode == '?':
+        for word_length in range(rule.min_length, rule.max_length + 1):
+            sub_sum = 1
             for i in range(
-                    len(rule.charset) - wordLength + 1,
+                    len(rule.charset) - word_length + 1,
                     len(rule.charset) + 1):
-                subSum *= i
-            count += subSum
-            size += subSum * wordLength
+                sub_sum *= i
+            count += sub_sum
+            size += sub_sum * word_length
     else:
-        for wordLength in range(rule.minLength, rule.maxLength + 1):
-            count += math.pow(len(rule.charset), wordLength)
-            size += count * wordLength
+        for word_length in range(rule.min_length, rule.max_length + 1):
+            count += math.pow(len(rule.charset), word_length)
+            size += count * word_length
     return count, size
 
 
-def getDictRuleResultDataSize(rule):
-    sumLines = 0
+def get_dict_rule_data_size(rule):
+    sum_lines = 0
     sepLen = 1
-    with open(rule.dictPath, 'r') as f:
-        bufferSize = 1024 * 4
-        readFunc = f.read  # loop optimization
-        chunk = readFunc(bufferSize)
+    with open(rule.dict_path, 'r') as f:
+        buffer_size = 1024 * 4
+        read_func = f.read  # loop optimization
+        chunk = read_func(buffer_size)
         if '\r\n' in chunk:
             sepLen = 2
         while chunk:
-            sumLines += chunk.count('\n')
-            chunk = readFunc(bufferSize)
-    linSeperatorCount = sepLen * sumLines
-    return sumLines, (os.path.getsize(rule.dictPath) - linSeperatorCount)
+            sum_lines += chunk.count('\n')
+            chunk = read_func(buffer_size)
+    line_seperator_count = sepLen * sum_lines
+    return sum_lines, (os.path.getsize(rule.dict_path) - line_seperator_count)
 
 
-def charsetWordProductorWrapper(func):
+def charset_word_productor_wrapper(func):
     @functools.wraps(func)
     def wrapper(*args, **kw):
         f = func(*args, **kw)
@@ -189,23 +189,23 @@ def charsetWordProductorWrapper(func):
     return wrapper
 
 
-@charsetWordProductorWrapper
-def charsetWordProductor(repeatMode, expandedCharset, length):
-    if repeatMode == '?':
-        return itertools.permutations(expandedCharset, r=length)
+@charset_word_productor_wrapper
+def charset_word_productor(repeat_mode, expanded_charset, length):
+    if repeat_mode == '?':
+        return itertools.permutations(expanded_charset, r=length)
     else:
-        return itertools.product(expandedCharset, repeat=length)
+        return itertools.product(expanded_charset, repeat=length)
 
 
-def largeDictWordProductor(rule):
+def large_dict_word_productor(rule):
     # NTFS default block size is 4096 bytes or bigger, try align it.
-    with open(rule.dictPath, 'r', buffering=1024 * 4) as f:
+    with open(rule.dict_path, 'r', buffering=1024 * 4) as f:
         for line in f:
             yield line.strip()
 
 
-def normalDictWordProductor(rule):
-    with open(rule.dictPath, 'r') as f:
+def normal_dict_word_productor(rule):
+    with open(rule.dict_path, 'r') as f:
         return f.read().splitlines()
 
 
@@ -220,10 +220,10 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
         echo_tips("rule")
         return
 
-    dictFiles = []
+    dict_files = []
     if dictlist:
-        dictFiles = re.split(r',\s*', dictlist) if dictlist else []
-        for f in dictFiles:
+        dict_files = re.split(r',\s*', dictlist) if dictlist else []
+        for f in dict_files:
             if not os.path.exists(f):
                 echo_tips("dictlist")
                 return
@@ -234,19 +234,19 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
 
     print((
         "mode: %s, global_repeat_mode: %s, part_size: %s, dictlist: %s, rule: %s"
-    ) % (_MODES[mode], global_repeat_mode, prettySize(part_size * 1024 * 1024),
-         dictFiles, rule))
+    ) % (_MODES[mode], global_repeat_mode,
+         pretty_size(part_size * 1024 * 1024), dict_files, rule))
     result = Array(
         'i', [0, 0, 0, 0],
-        lock=False)  # [countDone, wordCount, progress, finishFlag]
+        lock=False)  # [count_done, word_count, progress, finish_flag]
     if not debug_mode:
         worker = Process(
-            target=productCombinationWords,
+            target=product_rule_words,
             args=(result, rules, dict_cache, part_size, append_mode, seperator,
                   output))
     else:
         worker = threading.Thread(
-            target=productCombinationWords,
+            target=product_rule_words,
             args=(result, rules, dict_cache, part_size, append_mode, seperator,
                   output))
     worker.start()
@@ -268,222 +268,221 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
     click.echo("generate dict complete.")
 
 
-def extract_rules(dictList, rule, globalRepeatMode):
-    splitedDict = re.split(r',\s*', dictList) if dictList else []
-    dictCount = len(splitedDict)
-    reCharset = r"(\[([^\]]+?)\](\?|(\{-?\d+:-?\d+(:[\?\*])?\})|(\{-?\d+(:[\?\*])?\}))?)"
-    reDict = r"(\$(\d{1,%s}))" % (dictCount if dictCount > 0 else 1)
-    reRule = r"%s|%s" % (reCharset, reDict)
+def extract_rules(dictList, rule, global_repeat_mode):
+    splited_dict = re.split(r',\s*', dictList) if dictList else []
+    dict_count = len(splited_dict)
+    re_charset = r"(\[([^\]]+?)\](\?|(\{-?\d+:-?\d+(:[\?\*])?\})|(\{-?\d+(:[\?\*])?\}))?)"
+    re_dict = r"(\$(\d{1,%s}))" % (dict_count if dict_count > 0 else 1)
+    re_rule = r"%s|%s" % (re_charset, re_dict)
     rules = []
-    matchesLength = 0
-    matches = re.findall(reRule, rule)
+    matches_length = 0
+    matches = re.findall(re_rule, rule)
     try:
         for match in matches:
             match = list(filter(len, match))  # may have some empty element
-            matchesLength += len(match[0])
-            if re.match(reDict, match[0]):
+            matches_length += len(match[0])
+            if re.match(re_dict, match[0]):
                 order = int(match[1])
-                dictRule = DictRule(order, splitedDict[order])
-                rules.append(dictRule)
+                dict_rule = DictRule(order, splited_dict[order])
+                rules.append(dict_rule)
             else:
-                minLength = 0
-                maxLength = 1
-                expandedCharset = getExpandedCharset(match[1])
-                repeatMode = globalRepeatMode
+                min_length = 0
+                max_length = 1
+                expanded_charset = get_expanded_charset(match[1])
+                repeat_mode = global_repeat_mode
                 if len(match) > 2:
-                    lenInfo = match[2][1:-1].split(':')
-                    if len(lenInfo) >= 2:
-                        if re.match('-?\d+', lenInfo[
-                                1]):  # []{minLength:maxLength:repeatMode}
-                            minLength = int(lenInfo[0])
-                            maxLength = int(lenInfo[1])
-                            if (len(lenInfo) > 2):
-                                repeatMode = lenInfo[2]
+                    len_info = match[2][1:-1].split(':')
+                    if len(len_info) >= 2:
+                        if re.match('-?\d+', len_info[
+                                1]):  # []{min_length:max_length:repeat_mode}
+                            min_length = int(len_info[0])
+                            max_length = int(len_info[1])
+                            if (len(len_info) > 2):
+                                repeat_mode = len_info[2]
                         else:
-                            minLength = maxLength = int(lenInfo[0])
-                            repeatMode = lenInfo[1]
+                            min_length = max_length = int(len_info[0])
+                            repeat_mode = len_info[1]
                     elif match[2][0] == '{':
-                        minLength = maxLength = int(lenInfo[0])  # []{n}
+                        min_length = max_length = int(len_info[0])  # []{n}
                     else:
-                        repeatMode = lenInfo[0]  # ?
+                        repeat_mode = len_info[0]  # ?
                 else:
-                    minLength = maxLength = 1
-                if minLength < 0 or maxLength < 0 or minLength > maxLength or len(
-                        expandedCharset) < maxLength:
+                    min_length = max_length = 1
+                if min_length < 0 or max_length < 0 or min_length > max_length or len(
+                        expanded_charset) < max_length:
                     return None
-                charsetRule = CharsetRule(minLength, maxLength,
-                                          expandedCharset, repeatMode)
-                rules.append(charsetRule)
+                charset_rule = CharsetRule(min_length, max_length,
+                                           expanded_charset, repeat_mode)
+                rules.append(charset_rule)
     except IndexError:
         return None
-    if matchesLength <= 0:
+    if matches_length <= 0:
         return None
     return rules
 
 
-def generateWordProductor(rules, dictCacheLimit):
-    wordCountList = []
-    wordSizeList = []
-    wordProductors = []
-    dictCaches = {}
-    restCache = dictCacheLimit
-    for ruleObj in rules:
-        if isinstance(ruleObj, CharsetRule):
-            wordCount, wordSize = getCharsetRuleResultDataSize(ruleObj)
-            wordCountList.append(wordCount)
-            wordSizeList.append(wordSize)
+def generate_words_productor(rules, dict_cache_limit):
+    word_count_list = []
+    word_size_list = []
+    word_productors = []
+    dict_caches = {}
+    result_cache = dict_cache_limit
+    for rule in rules:
+        if isinstance(rule, CharsetRule):
+            word_count, word_size = get_charset_rule_data_size(rule)
+            word_count_list.append(word_count)
+            word_size_list.append(word_size)
             p = []
-            for length in range(ruleObj.minLength, ruleObj.maxLength + 1):
+            for length in range(rule.min_length, rule.max_length + 1):
                 p.append(
-                    charsetWordProductor(ruleObj.repeatMode, ruleObj.charset,
-                                         length))
-            wordProductors.append(itertools.chain(*p) if len(p) > 1 else p[0])
+                    charset_word_productor(rule.repeat_mode, rule.charset,
+                                           length))
+            word_productors.append(itertools.chain(*p) if len(p) > 1 else p[0])
         else:
-            if ruleObj.dictPath in dictCaches:
-                wordProductors.append(dictCaches[ruleObj.dictPath])
+            if rule.dict_path in dict_caches:
+                word_productors.append(dict_caches[rule.dict_path])
             else:
-                fileSize = os.path.getsize(ruleObj.dictPath)
-                if fileSize > restCache:
-                    wordProductors.append(largeDictWordProductor(ruleObj))
+                file_size = os.path.getsize(rule.dict_path)
+                if file_size > result_cache:
+                    word_productors.append(large_dict_word_productor(rule))
                 else:
-                    dictCaches[ruleObj.dictPath] = normalDictWordProductor(
-                        ruleObj)
-                    wordProductors.append(dictCaches[ruleObj.dictPath])
-                    restCache -= fileSize
-            wordCount, wordSize = getDictRuleResultDataSize(ruleObj)
-            wordCountList.append(wordCount)
-            wordSizeList.append(wordSize)
-    return WordProductor(wordCountList, wordSizeList, wordProductors)
+                    dict_caches[rule.dict_path] = normal_dict_word_productor(
+                        rule)
+                    word_productors.append(dict_caches[rule.dict_path])
+                    result_cache -= file_size
+            word_count, word_size = get_dict_rule_data_size(rule)
+            word_count_list.append(word_count)
+            word_size_list.append(word_size)
+    return WordProductor(word_count_list, word_size_list, word_productors)
 
 
-def productCombinationWords(result, rules, dictCacheLimit, partSize,
-                            appendMode, seperator, output):
-    productor = generateWordProductor(rules, dictCacheLimit)
-    result[1] = int(productor.totalCount())
+def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
+                       seperator, output):
+    productor = generate_words_productor(rules, dict_cache_limit)
+    result[1] = int(productor.total_count())
     result[0] = 1
-    estimatedSize = prettySize(productor.totalSize(sep=seperator))
-    print(("estimated size: %s, generate dict...") % (estimatedSize))
+    estimated_size = pretty_size(productor.total_size(sep=seperator))
+    print(("estimated size: %s, generate dict...") % (estimated_size))
 
     if not os.path.exists(
             os.path.abspath(os.path.join(output, os.path.pardir))):
         os.makedirs(os.path.abspath(os.path.join(output, os.path.pardir)))
-    realPartSize = partSize * 1024 * 1024
-    partIndex = 1
-    currSize = 0
-    firstOutputFileName = output
-    if realPartSize:
-        firstOutputFileName = _PART_DICT_NAME_FORMAT % (output, partIndex)
+    real_part_size = part_size * 1024 * 1024
+    part_index = 1
+    curr_size = 0
+    first_output_file_name = output
+    if real_part_size:
+        first_output_file_name = _PART_DICT_NAME_FORMAT % (output, part_index)
 
-    wordSeperator = os.linesep
+    word_seperator = os.linesep
     if seperator:
-        wordSeperator = _SPECIAL_SEPERATORS[
+        word_seperator = _SPECIAL_SEPERATORS[
             seperator] if seperator in _SPECIAL_SEPERATORS else seperator
 
-    lineSeperatorLength = len(wordSeperator)
-    fileMode = 'ab' if appendMode else 'wb'
+    file_mode = 'ab' if append_mode else 'wb'
 
     progress = 0
 
-    def progressMonitor():
+    def progress_monitor():
         while not result[3]:
             result[2] = progress
             time.sleep(0.1)
 
-    threading.Thread(target=progressMonitor).start()
+    threading.Thread(target=progress_monitor).start()
 
     try:
         p = itertools.product(*productor.productors) if len(
             productor.productors) > 1 else productor.productors[0]
-        f = open(firstOutputFileName, fileMode, buffering=1024 * 4)
+        f = open(first_output_file_name, file_mode, buffering=1024 * 4)
 
         # wrap f.write('content') as func will reduce the generation speed, so remain if...elif...
         if sys.version_info > (
                 3,
                 0):  # there will be a minimum of 10% performance improvement.
-            if realPartSize:  # avoid condition code cost.
+            if real_part_size:  # avoid condition code cost.
                 if len(productor.productors
                        ) > 1:  # complex rule, more join cost.
                     for w in p:
-                        content = (''.join(w) + wordSeperator).encode('utf-8')
+                        content = (''.join(w) + word_seperator).encode('utf-8')
                         f.write(content)
                         progress += 1
-                        lineLength = len(content)
-                        currSize += lineLength
-                        if currSize > realPartSize:
-                            currSize = lineLength
+                        line_length = len(content)
+                        curr_size += line_length
+                        if curr_size > real_part_size:
+                            curr_size = line_length
                             f.close()
-                            partIndex += 1
+                            part_index += 1
                             f = open(
-                                _PART_DICT_NAME_FORMAT % (output, partIndex),
-                                fileMode,
+                                _PART_DICT_NAME_FORMAT % (output, part_index),
+                                file_mode,
                                 buffering=1024 * 4)
                 else:
                     for w in p:
-                        content = (w + wordSeperator).encode('utf-8')
+                        content = (w + word_seperator).encode('utf-8')
                         f.write(content)
                         progress += 1
-                        lineLength = len(content)
-                        currSize += lineLength
-                        if currSize > realPartSize:
-                            currSize = lineLength
+                        line_length = len(content)
+                        curr_size += line_length
+                        if curr_size > real_part_size:
+                            curr_size = line_length
                             f.close()
-                            partIndex += 1
+                            part_index += 1
                             f = open(
-                                _PART_DICT_NAME_FORMAT % (output, partIndex),
-                                fileMode,
+                                _PART_DICT_NAME_FORMAT % (output, part_index),
+                                file_mode,
                                 buffering=1024 * 4)
             else:
                 if len(productor.productors
                        ) > 1:  # complex rule, more join cost.
                     for w in p:
-                        f.write((''.join(w) + wordSeperator).encode('utf-8'))
+                        f.write((''.join(w) + word_seperator).encode('utf-8'))
                         progress += 1
                 else:
                     for w in p:
-                        f.write((w + wordSeperator).encode('utf-8'))
+                        f.write((w + word_seperator).encode('utf-8'))
                         progress += 1
         else:
-            if realPartSize:  # avoid condition code cost.
+            if real_part_size:  # avoid condition code cost.
                 if len(productor.productors
                        ) > 1:  # complex rule, more join cost.
                     for w in p:
-                        content = ''.join(w) + wordSeperator
+                        content = ''.join(w) + word_seperator
                         f.write(content)
                         progress += 1
-                        lineLength = len(content)
-                        currSize += lineLength
-                        if currSize > realPartSize:
-                            currSize = lineLength
+                        line_length = len(content)
+                        curr_size += line_length
+                        if curr_size > real_part_size:
+                            curr_size = line_length
                             f.close()
-                            partIndex += 1
+                            part_index += 1
                             f = open(
-                                _PART_DICT_NAME_FORMAT % (output, partIndex),
-                                fileMode,
+                                _PART_DICT_NAME_FORMAT % (output, part_index),
+                                file_mode,
                                 buffering=1024 * 4)
                 else:
                     for w in p:
-                        content = w + wordSeperator
+                        content = w + word_seperator
                         f.write(content)
                         progress += 1
-                        lineLength = len(content)
-                        currSize += lineLength
-                        if currSize > realPartSize:
-                            currSize = lineLength
+                        line_length = len(content)
+                        curr_size += line_length
+                        if curr_size > real_part_size:
+                            curr_size = line_length
                             f.close()
-                            partIndex += 1
+                            part_index += 1
                             f = open(
-                                _PART_DICT_NAME_FORMAT % (output, partIndex),
-                                fileMode,
+                                _PART_DICT_NAME_FORMAT % (output, part_index),
+                                file_mode,
                                 buffering=1024 * 4)
             else:
                 if len(productor.productors
                        ) > 1:  # complex rule, more join cost.
                     for w in p:
-                        f.write(''.join(w) + wordSeperator)
+                        f.write(''.join(w) + word_seperator)
                         progress += 1
                 else:
                     for w in p:
-                        f.write(w + wordSeperator)
+                        f.write(w + word_seperator)
                         progress += 1
     finally:
         f.close()
@@ -497,7 +496,7 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize,
     show_default=True,
     default=0,
     type=click.INT,
-    help="generation mode:\n\n" + formatDict(_MODES))
+    help="generation mode:\n\n" + format_dict(_MODES))
 @click.option(
     "--dictlist",
     "-d",
@@ -510,8 +509,9 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize,
     type=click.STRING,
     show_default=True,
     default="",
-    help="define word format, $0 means refer first file in wordlist, some built-in charsets:\n\n"
-    + formatDict(_BUILT_IN_CHARSET) +
+    help=
+    "define word format, $0 means refer first file in wordlist, some built-in charsets:\n\n"
+    + format_dict(_BUILT_IN_CHARSET) +
     "\n\nexample: [?dA]{1:2}$0\nview documentation for more information.")
 @click.option(
     "--dict_cache",
@@ -519,7 +519,8 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize,
     type=click.INT,
     show_default=True,
     default=500,
-    help="each element in 'dictlist' option represents a dict file path, this option define"
+    help=
+    "each element in 'dictlist' option represents a dict file path, this option define"
     +
     " the maximum amount of memory(MB) that can be used when reading their contents,"
     +
@@ -532,14 +533,15 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize,
     default='?',
     type=click.STRING,
     help="whether the character is allowd to repeat:\n\n" +
-    formatDict(_REPEAT_MODES))
+    format_dict(_REPEAT_MODES))
 @click.option(
     "--part_size",
     "-p",
     type=click.INT,
     default=0,
     show_default=True,
-    help="when result data is huge, split package size(MB) will be applied, 0 is unlimited."
+    help=
+    "when result data is huge, split package size(MB) will be applied, 0 is unlimited."
 )
 @click.option(
     "--append_mode",
@@ -554,8 +556,9 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize,
     type=click.STRING,
     default='',
     show_default=True,
-    help="word seperator, by default, each word occupies one line. special char:\n\n"
-    + formatDict(_SPECIAL_SEPERATORS_NAME))
+    help=
+    "word seperator, by default, each word occupies one line. special char:\n\n"
+    + format_dict(_SPECIAL_SEPERATORS_NAME))
 @click.option(
     "--debug_mode",
     type=click.INT,

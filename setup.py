@@ -35,7 +35,8 @@ setup(
     author_email='yiyou7309@gmail.com',
     url='https://github.com/tp7309/TTPassGen',
     license='Apache License Version 2.0',
-    keywords='python ttpassgen password-generator wordlist password-dict password-dict-generator brute-force word-combination',
+    keywords=
+    'python ttpassgen password-generator wordlist password-dict password-dict-generator brute-force word-combination',
     long_description=long_description,
     packages=find_packages(exclude=['docs', 'tests*']),
     include_package_data=True,

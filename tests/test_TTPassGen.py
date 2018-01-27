@@ -1,12 +1,11 @@
 # coding: utf-8
 
 from __future__ import print_function
+from ttpassgen import ttpassgen
 import unittest
 import os
-import sys
-myPath = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, myPath + '/../')
-from ttpassgen import ttpassgen
+
+tests_path = os.path.dirname(os.path.abspath(__file__))
 
 
 # tests/in.dict generate by: ttpassgen -r [123]{3} in.dict
@@ -25,7 +24,7 @@ class Test_ttpassgen(unittest.TestCase):
         lc = lc_func
 
         def go_func(rule,
-                    dictlist=os.path.join(myPath, 'in.dict'),
+                    dictlist=os.path.join(tests_path, 'in.dict'),
                     mode=0,
                     partSize=0,
                     diskCache=500,
@@ -48,8 +47,6 @@ class Test_ttpassgen(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         super(Test_ttpassgen, cls).tearDownClass()
-        lc = None
-        go = None
         if os.path.exists('testout.dict'):
             os.remove('testout.dict')
         if os.path.exists('testout.dict.1'):
@@ -121,15 +118,15 @@ class Test_ttpassgen(unittest.TestCase):
             go('$0[abc]?', seperator='-------------------------\n'), 24)
 
     def test_multi_dict_mark_charset_rule(self):
-        inDict = os.path.join(myPath, 'in.dict')
-        in2Dict = os.path.join(myPath, 'in2.dict')
-        with open(in2Dict, 'wb') as f:
+        dict_in = os.path.join(tests_path, 'in.dict')
+        dict_in2 = os.path.join(tests_path, 'in2.dict')
+        with open(dict_in2, 'wb') as f:
             content = ['q00', 'q01']
             f.write(('\n'.join(content)).encode('utf-8'))
         self.assertEquals(
-            go('$1$0[abc]?', dictlist="%s,%s" % (inDict, in2Dict)), 48)
-        if os.path.exists(in2Dict):
-            os.remove(in2Dict)
+            go('$1$0[abc]?', dictlist="%s,%s" % (dict_in, dict_in2)), 48)
+        if os.path.exists(dict_in2):
+            os.remove(dict_in2)
 
     def test_part_size_with_complex_rule(self):
         if os.path.exists('testout.dict.1'):
@@ -140,13 +137,13 @@ class Test_ttpassgen(unittest.TestCase):
             os.remove('testout.dict.3')
 
         go('[?d]{1:4:*}$0[?q]$[0123]', partSize=1, debugMode=1)
-        totalLine = 0
+        total_line = 0
         with open('testout.dict.1', 'r') as f:
-            totalLine += len(f.readlines())
+            total_line += len(f.readlines())
         with open('testout.dict.2', 'r') as f:
-            totalLine += len(f.readlines())
+            total_line += len(f.readlines())
         with open('testout.dict.3', 'r') as f:
-            totalLine += len(f.readlines())
+            total_line += len(f.readlines())
 
         # actual value: 1024 * 1, why 24 difference? I like do it>_>
         self.assertTrue(
@@ -157,7 +154,7 @@ class Test_ttpassgen(unittest.TestCase):
             os.remove('testout.dict.2')
         if os.path.exists('testout.dict.3'):
             os.remove('testout.dict.3')
-        self.assertEquals(totalLine, 266640)
+        self.assertEquals(total_line, 266640)
 
     def test_multiprocessing_complex_rule(self):
         self.assertEquals(go('[789]{0:3:*}$0[?q]$0', debugMode=0), 1440)
@@ -175,14 +172,14 @@ class Test_ttpassgen(unittest.TestCase):
             os.remove('testout.dict.3')
 
         go('[?l]{1:4}', partSize=1)
-        totalLine = 0
+        total_line = 0
         with open('testout.dict.1', 'r') as f:
-            totalLine += len(f.readlines())
+            total_line += len(f.readlines())
         with open('testout.dict.2', 'r') as f:
-            totalLine += len(f.readlines())
+            total_line += len(f.readlines())
         if len(os.linesep) > 1:
             with open('testout.dict.3', 'r') as f:
-                totalLine += len(f.readlines())
+                total_line += len(f.readlines())
 
         # actual value: 1024 * 1, why 24 difference? I like do it>_>
         self.assertTrue(
@@ -193,7 +190,7 @@ class Test_ttpassgen(unittest.TestCase):
             os.remove('testout.dict.2')
         if os.path.exists('testout.dict.3'):
             os.remove('testout.dict.3')
-        self.assertEquals(totalLine, 375076)
+        self.assertEquals(total_line, 375076)
 
     def test_wrong_length_in_rule(self):
         if os.path.exists('testout.dict'):

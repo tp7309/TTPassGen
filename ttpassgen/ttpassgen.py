@@ -8,7 +8,8 @@ import re
 import itertools
 import time
 import os
-import math, functools
+import math
+import functools
 from multiprocessing import Array
 import multiprocessing
 import threading
@@ -54,7 +55,7 @@ class Process(multiprocessing.Process):
     pass
 
 
-#Module multiprocessing end
+# Module multiprocessing end
 
 _MODES = OrderedDict([(0, 'combination rule mode')])
 
@@ -74,13 +75,13 @@ _SPECIAL_SEPERATORS = OrderedDict([("&#160;", " ")])
 _PART_DICT_NAME_FORMAT = '%s.%d'
 
 
-#Rule class start
+# Rule class start
 class CharsetRule(object):
-    def __init__(self, minLength, maxLength, charset, repeatMode):
-        self.minLength = minLength
-        self.maxLength = maxLength
+    def __init__(self, min_length, max_length, charset, repeat_mode):
+        self.minLength = min_length
+        self.maxLength = max_length
         self.charset = charset
-        self.repeatMode = repeatMode
+        self.repeatMode = repeat_mode
 
 
 class DictRule(object):
@@ -89,7 +90,7 @@ class DictRule(object):
         self.dictPath = dictPath
 
 
-#Rule class end
+# Rule class end
 
 
 class WordProductor(object):
@@ -167,9 +168,10 @@ def getDictRuleResultDataSize(rule):
     sepLen = 1
     with open(rule.dictPath, 'r') as f:
         bufferSize = 1024 * 4
-        readFunc = f.read  #loop optimization
+        readFunc = f.read  # loop optimization
         chunk = readFunc(bufferSize)
-        if '\r\n' in chunk: sepLen = 2
+        if '\r\n' in chunk:
+            sepLen = 2
         while chunk:
             sumLines += chunk.count('\n')
             chunk = readFunc(bufferSize)
@@ -182,7 +184,7 @@ def charsetWordProductorWrapper(func):
     def wrapper(*args, **kw):
         f = func(*args, **kw)
         for item in f:
-            yield ''.join(item)  #loop optimization
+            yield ''.join(item)  # loop optimization
 
     return wrapper
 
@@ -196,7 +198,7 @@ def charsetWordProductor(repeatMode, expandedCharset, length):
 
 
 def largeDictWordProductor(rule):
-    #NTFS default block size is 4096 bytes or bigger, try align it.
+    # NTFS default block size is 4096 bytes or bigger, try align it.
     with open(rule.dictPath, 'r', buffering=1024 * 4) as f:
         for line in f:
             yield line.strip()
@@ -236,7 +238,7 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
          dictFiles, rule))
     result = Array(
         'i', [0, 0, 0, 0],
-        lock=False)  #[countDone, wordCount, progress, finishFlag]
+        lock=False)  # [countDone, wordCount, progress, finishFlag]
     if not debug_mode:
         worker = Process(
             target=productCombinationWords,
@@ -254,13 +256,14 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
     progress = 0
     while progress < pbar.total:
         time.sleep(0.1)
-        if result[3]: break  #exit
+        if result[3]:
+            break  # exit
         delta = result[2] - progress
         progress += delta
         pbar.update(delta)
     worker.join()
     if (progress < pbar.total):
-        pbar.update(pbar.total - progress)  #avoid stay at 99%
+        pbar.update(pbar.total - progress)  # avoid stay at 99%
     pbar.close()
     click.echo("generate dict complete.")
 
@@ -276,7 +279,7 @@ def extract_rules(dictList, rule, globalRepeatMode):
     matches = re.findall(reRule, rule)
     try:
         for match in matches:
-            match = list(filter(len, match))  #may have some empty element
+            match = list(filter(len, match))  # may have some empty element
             matchesLength += len(match[0])
             if re.match(reDict, match[0]):
                 order = int(match[1])
@@ -291,7 +294,7 @@ def extract_rules(dictList, rule, globalRepeatMode):
                     lenInfo = match[2][1:-1].split(':')
                     if len(lenInfo) >= 2:
                         if re.match('-?\d+', lenInfo[
-                                1]):  #[]{minLength:maxLength:repeatMode}
+                                1]):  # []{minLength:maxLength:repeatMode}
                             minLength = int(lenInfo[0])
                             maxLength = int(lenInfo[1])
                             if (len(lenInfo) > 2):
@@ -300,9 +303,9 @@ def extract_rules(dictList, rule, globalRepeatMode):
                             minLength = maxLength = int(lenInfo[0])
                             repeatMode = lenInfo[1]
                     elif match[2][0] == '{':
-                        minLength = maxLength = int(lenInfo[0])  #[]{n}
+                        minLength = maxLength = int(lenInfo[0])  # []{n}
                     else:
-                        repeatMode = lenInfo[0]  #?
+                        repeatMode = lenInfo[0]  # ?
                 else:
                     minLength = maxLength = 1
                 if minLength < 0 or maxLength < 0 or minLength > maxLength or len(
@@ -313,7 +316,8 @@ def extract_rules(dictList, rule, globalRepeatMode):
                 rules.append(charsetRule)
     except IndexError:
         return None
-    if matchesLength <= 0: return None
+    if matchesLength <= 0:
+        return None
     return rules
 
 
@@ -395,7 +399,7 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize,
         # wrap f.write('content') as func will reduce the generation speed, so remain if...elif...
         if sys.version_info > (
                 3,
-                0):  #there will be a minimum of 10% performance improvement.
+                0):  # there will be a minimum of 10% performance improvement.
             if realPartSize:  # avoid condition code cost.
                 if len(productor.productors
                        ) > 1:  # complex rule, more join cost.
@@ -506,8 +510,7 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize,
     type=click.STRING,
     show_default=True,
     default="",
-    help=
-    "define word format, $0 means refer first file in wordlist, some built-in charsets:\n\n"
+    help="define word format, $0 means refer first file in wordlist, some built-in charsets:\n\n"
     + formatDict(_BUILT_IN_CHARSET) +
     "\n\nexample: [?dA]{1:2}$0\nview documentation for more information.")
 @click.option(
@@ -516,8 +519,7 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize,
     type=click.INT,
     show_default=True,
     default=500,
-    help=
-    "each element in 'dictlist' option represents a dict file path, this option define"
+    help="each element in 'dictlist' option represents a dict file path, this option define"
     +
     " the maximum amount of memory(MB) that can be used when reading their contents,"
     +
@@ -537,8 +539,7 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize,
     type=click.INT,
     default=0,
     show_default=True,
-    help=
-    "when result data is huge, split package size(MB) will be applied, 0 is unlimited."
+    help="when result data is huge, split package size(MB) will be applied, 0 is unlimited."
 )
 @click.option(
     "--append_mode",
@@ -553,8 +554,7 @@ def productCombinationWords(result, rules, dictCacheLimit, partSize,
     type=click.STRING,
     default='',
     show_default=True,
-    help=
-    "word seperator, by default, each word occupies one line. special char:\n\n"
+    help="word seperator, by default, each word occupies one line. special char:\n\n"
     + formatDict(_SPECIAL_SEPERATORS_NAME))
 @click.option(
     "--debug_mode",

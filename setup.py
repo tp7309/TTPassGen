@@ -35,8 +35,7 @@ setup(
     author_email='yiyou7309@gmail.com',
     url='https://github.com/tp7309/TTPassGen',
     license='Apache License Version 2.0',
-    keywords=
-    'python ttpassgen password-generator wordlist password-dict password-dict-generator brute-force word-combination',
+    keywords='python ttpassgen password-generator wordlist password-dict password-dict-generator brute-force word-combination',
     long_description=long_description,
     packages=find_packages(exclude=['docs', 'tests*']),
     include_package_data=True,
@@ -48,21 +47,21 @@ setup(
     },
 )
 
-#md2rst
-#pandoc --from=markdown --to=rst --output=README.rst README.md
+# md2rst
+# pandoc --from=markdown --to=rst --output=README.rst README.md
 
-#upload
-#python setup.py bdist_wheel
-#twine upload dist/*
+# upload
+# python setup.py bdist_wheel
+# twine upload dist/*
 
-#pyinstaller
-#pyinstaller --onefile ttpassgen/ttpassgen.py
+# pyinstaller
+# pyinstaller --onefile ttpassgen/ttpassgen.py
 
-#auto generate requirements.txt
-#pip freeze --local > requirements.txt
+# auto generate requirements.txt
+# pip freeze --local > requirements.txt
 
-#view coverage report
-#coverage html -d coverage_html
+# view coverage report
+# coverage html -d coverage_html
 
-#format code style
-#yapf -i -r .
+# format code style
+# yapf -i -r .

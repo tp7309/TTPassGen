@@ -1,20 +1,23 @@
 # coding: utf-8
 
 from __future__ import print_function
-import unittest, os, sys
+import unittest
+import os
+import sys
 myPath = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, myPath + '/../')
 from ttpassgen import ttpassgen
 
 
-#tests/in.dict generate by: ttpassgen -r [123]{3} in.dict
+# tests/in.dict generate by: ttpassgen -r [123]{3} in.dict
 class Test_ttpassgen(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         super(Test_ttpassgen, cls).setUpClass()
 
         def lc_func():
-            if not os.path.exists('testout.dict'): return 0
+            if not os.path.exists('testout.dict'):
+                return 0
             with open('testout.dict', 'r') as f:
                 return len(f.readlines())
 
@@ -47,32 +50,43 @@ class Test_ttpassgen(unittest.TestCase):
         super(Test_ttpassgen, cls).tearDownClass()
         lc = None
         go = None
-        if os.path.exists('testout.dict'): os.remove('testout.dict')
-        if os.path.exists('testout.dict.1'): os.remove('testout.dict.1')
-        if os.path.exists('testout.dict.2'): os.remove('testout.dict.2')
-        if os.path.exists('testout.dict.3'): os.remove('testout.dict.3')
+        if os.path.exists('testout.dict'):
+            os.remove('testout.dict')
+        if os.path.exists('testout.dict.1'):
+            os.remove('testout.dict.1')
+        if os.path.exists('testout.dict.2'):
+            os.remove('testout.dict.2')
+        if os.path.exists('testout.dict.3'):
+            os.remove('testout.dict.3')
 
     def test_invalid_options(self):
-        if os.path.exists('testout.dict'): os.remove('testout.dict')
+        if os.path.exists('testout.dict'):
+            os.remove('testout.dict')
         self.assertEquals(go('$0', mode=233), 0)
 
-        if os.path.exists('testout.dict'): os.remove('testout.dict')
+        if os.path.exists('testout.dict'):
+            os.remove('testout.dict')
         self.assertEquals(go(dictlist=None, rule=None), 0)
 
-        if os.path.exists('testout.dict'): os.remove('testout.dict')
+        if os.path.exists('testout.dict'):
+            os.remove('testout.dict')
         self.assertEquals(go('[?d]', repeatMode="cc9"), 0)
 
-        if os.path.exists('testout.dict'): os.remove('testout.dict')
+        if os.path.exists('testout.dict'):
+            os.remove('testout.dict')
         self.assertEquals(go('$0word233', dictlist=''), 0)
 
-        if os.path.exists('testout.dict'): os.remove('testout.dict')
+        if os.path.exists('testout.dict'):
+            os.remove('testout.dict')
         self.assertEquals(go('$99[hello]'), 0)
 
-        if os.path.exists('testout.dict'): os.remove('testout.dict')
+        if os.path.exists('testout.dict'):
+            os.remove('testout.dict')
         self.assertEquals(go('$0', dictlist='not_exist.dict'), 0)
 
     def test_not_exist_output_file(self):
-        if os.path.exists('testout.dict'): os.remove('testout.dict')
+        if os.path.exists('testout.dict'):
+            os.remove('testout.dict')
         self.assertEquals(go('$0'), 6)
 
     def test_dict_copy_rule(self):
@@ -114,12 +128,16 @@ class Test_ttpassgen(unittest.TestCase):
             f.write(('\n'.join(content)).encode('utf-8'))
         self.assertEquals(
             go('$1$0[abc]?', dictlist="%s,%s" % (inDict, in2Dict)), 48)
-        if os.path.exists(in2Dict): os.remove(in2Dict)
+        if os.path.exists(in2Dict):
+            os.remove(in2Dict)
 
     def test_part_size_with_complex_rule(self):
-        if os.path.exists('testout.dict.1'): os.remove('testout.dict.1')
-        if os.path.exists('testout.dict.2'): os.remove('testout.dict.2')
-        if os.path.exists('testout.dict.3'): os.remove('testout.dict.3')
+        if os.path.exists('testout.dict.1'):
+            os.remove('testout.dict.1')
+        if os.path.exists('testout.dict.2'):
+            os.remove('testout.dict.2')
+        if os.path.exists('testout.dict.3'):
+            os.remove('testout.dict.3')
 
         go('[?d]{1:4:*}$0[?q]$[0123]', partSize=1, debugMode=1)
         totalLine = 0
@@ -130,12 +148,15 @@ class Test_ttpassgen(unittest.TestCase):
         with open('testout.dict.3', 'r') as f:
             totalLine += len(f.readlines())
 
-        #actual value: 1024 * 1, why 24 difference? I like do it>_>
+        # actual value: 1024 * 1, why 24 difference? I like do it>_>
         self.assertTrue(
             1000 <= os.path.getsize('testout.dict.1') / 1024 <= 1048)
-        if os.path.exists('testout.dict.1'): os.remove('testout.dict.1')
-        if os.path.exists('testout.dict.2'): os.remove('testout.dict.2')
-        if os.path.exists('testout.dict.3'): os.remove('testout.dict.3')
+        if os.path.exists('testout.dict.1'):
+            os.remove('testout.dict.1')
+        if os.path.exists('testout.dict.2'):
+            os.remove('testout.dict.2')
+        if os.path.exists('testout.dict.3'):
+            os.remove('testout.dict.3')
         self.assertEquals(totalLine, 266640)
 
     def test_multiprocessing_complex_rule(self):
@@ -146,9 +167,12 @@ class Test_ttpassgen(unittest.TestCase):
         self.assertEquals(go('$0[abc]?', diskCache=0), 24)
 
     def test_part_size(self):
-        if os.path.exists('testout.dict.1'): os.remove('testout.dict.1')
-        if os.path.exists('testout.dict.2'): os.remove('testout.dict.2')
-        if os.path.exists('testout.dict.3'): os.remove('testout.dict.3')
+        if os.path.exists('testout.dict.1'):
+            os.remove('testout.dict.1')
+        if os.path.exists('testout.dict.2'):
+            os.remove('testout.dict.2')
+        if os.path.exists('testout.dict.3'):
+            os.remove('testout.dict.3')
 
         go('[?l]{1:4}', partSize=1)
         totalLine = 0
@@ -160,16 +184,20 @@ class Test_ttpassgen(unittest.TestCase):
             with open('testout.dict.3', 'r') as f:
                 totalLine += len(f.readlines())
 
-        #actual value: 1024 * 1, why 24 difference? I like do it>_>
+        # actual value: 1024 * 1, why 24 difference? I like do it>_>
         self.assertTrue(
             1000 <= os.path.getsize('testout.dict.1') / 1024 <= 1048)
-        if os.path.exists('testout.dict.1'): os.remove('testout.dict.1')
-        if os.path.exists('testout.dict.2'): os.remove('testout.dict.2')
-        if os.path.exists('testout.dict.3'): os.remove('testout.dict.3')
+        if os.path.exists('testout.dict.1'):
+            os.remove('testout.dict.1')
+        if os.path.exists('testout.dict.2'):
+            os.remove('testout.dict.2')
+        if os.path.exists('testout.dict.3'):
+            os.remove('testout.dict.3')
         self.assertEquals(totalLine, 375076)
 
     def test_wrong_length_in_rule(self):
-        if os.path.exists('testout.dict'): os.remove('testout.dict')
+        if os.path.exists('testout.dict'):
+            os.remove('testout.dict')
         self.assertEquals(go('[789]{0:-3}'), 0)
 
 

@@ -115,6 +115,3 @@ word22
 输出：
 word11word21 word11word22 word11_word21 word11_word22 word12word21 word12word22 word12_word21 word12_word22
 ```
-
-# 更新日志
-[更新日志](https://github.com/tp7309/TTPassGen/blob/master/CHANGES.md)

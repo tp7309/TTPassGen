@@ -11,51 +11,12 @@ import os
 import math
 import functools
 from multiprocessing import Array
+from multiprocessing import Process
 import multiprocessing
 import threading
 from tqdm import tqdm
 from collections import OrderedDict
 
-# Module multiprocessing start: organized differently in Python 3.4+
-try:
-    # Python 3.4+
-    if sys.platform.startswith('win'):
-        import multiprocessing.popen_spawn_win32 as forking
-    else:
-        import multiprocessing.popen_fork as forking
-except ImportError:
-    import multiprocessing.forking as forking
-
-if sys.platform.startswith('win'):
-    # First define a modified version of Popen.
-    class _Popen(forking.Popen):
-        def __init__(self, *args, **kw):
-            if hasattr(sys, 'frozen'):
-                # We have to set original _MEIPASS2 value from sys._MEIPASS
-                # to get --onefile mode working.
-                os.putenv('_MEIPASS2', sys._MEIPASS)
-            try:
-                super(_Popen, self).__init__(*args, **kw)
-            finally:
-                if hasattr(sys, 'frozen'):
-                    # On some platforms (e.g. AIX) 'os.unsetenv()' is not
-                    # available. In those cases we cannot delete the variable
-                    # but only set it to the empty string. The bootloader
-                    # can handle this case.
-                    if hasattr(os, 'unsetenv'):
-                        os.unsetenv('_MEIPASS2')
-                    else:
-                        os.putenv('_MEIPASS2', '')
-
-    # Second override 'Popen' class with our modified version.
-    forking.Popen = _Popen
-
-
-class Process(multiprocessing.Process):
-    pass
-
-
-# Module multiprocessing end
 
 _MODES = OrderedDict([(0, 'combination rule mode')])
 
@@ -442,48 +403,7 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
                         f.write((w + word_seperator).encode('utf-8'))
                         progress += 1
         else:
-            if real_part_size:  # avoid condition code cost.
-                if len(productor.productors
-                       ) > 1:  # complex rule, more join cost.
-                    for w in p:
-                        content = ''.join(w) + word_seperator
-                        f.write(content)
-                        progress += 1
-                        line_length = len(content)
-                        curr_size += line_length
-                        if curr_size > real_part_size:
-                            curr_size = line_length
-                            f.close()
-                            part_index += 1
-                            f = open(
-                                _PART_DICT_NAME_FORMAT % (output, part_index),
-                                file_mode,
-                                buffering=1024 * 4)
-                else:
-                    for w in p:
-                        content = w + word_seperator
-                        f.write(content)
-                        progress += 1
-                        line_length = len(content)
-                        curr_size += line_length
-                        if curr_size > real_part_size:
-                            curr_size = line_length
-                            f.close()
-                            part_index += 1
-                            f = open(
-                                _PART_DICT_NAME_FORMAT % (output, part_index),
-                                file_mode,
-                                buffering=1024 * 4)
-            else:
-                if len(productor.productors
-                       ) > 1:  # complex rule, more join cost.
-                    for w in p:
-                        f.write(''.join(w) + word_seperator)
-                        progress += 1
-                else:
-                    for w in p:
-                        f.write(w + word_seperator)
-                        progress += 1
+            print('python 2.x not supported')
     finally:
         f.close()
     result[3] = 1
@@ -568,10 +488,6 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
 @click.argument("output", type=click.Path())
 def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size,
         append_mode, seperator, debug_mode, output):
-    # On Windows calling this function is necessary.
-    if os.name == 'nt':
-        multiprocessing.freeze_support()
-
     if mode in _MODES:
         generate_dict_by_rule(mode, dictlist, rule, dict_cache,
                               global_repeat_mode, part_size, append_mode,

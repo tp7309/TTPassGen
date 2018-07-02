@@ -12,7 +12,6 @@ import math
 import functools
 from multiprocessing import Array
 from multiprocessing import Process
-import multiprocessing
 import threading
 from tqdm import tqdm
 from collections import OrderedDict
@@ -361,8 +360,8 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
                 3,
                 0):  # there will be a minimum of 10% performance improvement.
             if real_part_size:  # avoid condition code cost.
-                if len(productor.productors
-                       ) > 1:  # complex rule, more join cost.
+                # complex rule, more join cost.
+                if len(productor.productors) > 1:
                     for w in p:
                         content = (''.join(w) + word_seperator).encode('utf-8')
                         f.write(content)
@@ -393,8 +392,8 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
                                 file_mode,
                                 buffering=1024 * 4)
             else:
-                if len(productor.productors
-                       ) > 1:  # complex rule, more join cost.
+                # complex rule, more join cost.
+                if len(productor.productors) > 1:
                     for w in p:
                         f.write((''.join(w) + word_seperator).encode('utf-8'))
                         progress += 1

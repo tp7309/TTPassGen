@@ -123,10 +123,10 @@ def get_charset_rule_data_size(rule):
     return count, size
 
 
-def get_dict_rule_data_size(rule):
+def get_dict_rule_data_size(rule, inencoding):
     sum_lines = 0
     sepLen = 1
-    with open(rule.dict_path, 'r') as f:
+    with open(rule.dict_path, 'r', encoding=inencoding) as f:
         buffer_size = 1024 * 4
         read_func = f.read  # loop optimization
         chunk = read_func(buffer_size)
@@ -157,21 +157,20 @@ def charset_word_productor(repeat_mode, expanded_charset, length):
         return itertools.product(expanded_charset, repeat=length)
 
 
-def large_dict_word_productor(rule):
-    # NTFS default block size is 4096 bytes or bigger, try align it.
-    with open(rule.dict_path, 'r', buffering=1024 * 4) as f:
+def large_dict_word_productor(rule, inencoding):
+    with open(rule.dict_path, 'r', encoding=inencoding) as f:
         for line in f:
             yield line.strip()
 
 
-def normal_dict_word_productor(rule):
+def normal_dict_word_productor(rule, inencoding):
     with open(rule.dict_path, 'r') as f:
         return f.read().splitlines()
 
 
 def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
-                          part_size, append_mode, seperator, debug_mode,
-                          output):
+                          part_size, append_mode, seperator, debug_mode, inencoding,
+                          outencoding, output):
     if not dictlist and not rule:
         click.echo("dictlist and rule option must have at least one value!")
         return
@@ -193,9 +192,9 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
         return
 
     print((
-        "mode: %s, global_repeat_mode: %s, part_size: %s, dictlist: %s, rule: %s"
+        "mode: %s, global_repeat_mode: %s, part_size: %s, dictlist: %s, dict file encoding: %s, rule: %s"
     ) % (_MODES[mode], global_repeat_mode,
-         pretty_size(part_size * 1024 * 1024), dict_files, rule))
+         pretty_size(part_size * 1024 * 1024), dict_files, inencoding, rule))
     result = Array(
         'i', [0, 0, 0, 0],
         lock=False)  # [count_done, word_count, progress, finish_flag]
@@ -203,12 +202,12 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
         worker = Process(
             target=product_rule_words,
             args=(result, rules, dict_cache, part_size, append_mode, seperator,
-                  output))
+                  inencoding, outencoding, output))
     else:
         worker = threading.Thread(
             target=product_rule_words,
             args=(result, rules, dict_cache, part_size, append_mode, seperator,
-                  output))
+                  inencoding, outencoding, output))
     worker.start()
     while not result[0]:
         time.sleep(0.05)
@@ -281,7 +280,7 @@ def extract_rules(dictList, rule, global_repeat_mode):
     return rules
 
 
-def generate_words_productor(rules, dict_cache_limit):
+def generate_words_productor(rules, dict_cache_limit, inencoding):
     word_count_list = []
     word_size_list = []
     word_productors = []
@@ -304,21 +303,21 @@ def generate_words_productor(rules, dict_cache_limit):
             else:
                 file_size = os.path.getsize(rule.dict_path)
                 if file_size > result_cache:
-                    word_productors.append(large_dict_word_productor(rule))
+                    word_productors.append(large_dict_word_productor(rule, inencoding))
                 else:
                     dict_caches[rule.dict_path] = normal_dict_word_productor(
-                        rule)
+                        rule, inencoding)
                     word_productors.append(dict_caches[rule.dict_path])
                     result_cache -= file_size
-            word_count, word_size = get_dict_rule_data_size(rule)
+            word_count, word_size = get_dict_rule_data_size(rule, inencoding)
             word_count_list.append(word_count)
             word_size_list.append(word_size)
     return WordProductor(word_count_list, word_size_list, word_productors)
 
 
 def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
-                       seperator, output):
-    productor = generate_words_productor(rules, dict_cache_limit)
+                       seperator, inencoding, outencoding, output):
+    productor = generate_words_productor(rules, dict_cache_limit, inencoding)
     result[1] = int(productor.total_count())
     result[0] = 1
     estimated_size = pretty_size(productor.total_size(sep=seperator))
@@ -353,7 +352,7 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     try:
         p = itertools.product(*productor.productors) if len(
             productor.productors) > 1 else productor.productors[0]
-        f = open(first_output_file_name, file_mode, buffering=1024 * 4)
+        f = open(first_output_file_name, file_mode)
 
         # wrap f.write('content') as func will reduce the generation speed, so remain if...elif...
         if sys.version_info > (
@@ -363,7 +362,7 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
                 # complex rule, more join cost.
                 if len(productor.productors) > 1:
                     for w in p:
-                        content = (''.join(w) + word_seperator).encode('utf-8')
+                        content = (''.join(w) + word_seperator).encode(outencoding)
                         f.write(content)
                         progress += 1
                         line_length = len(content)
@@ -374,11 +373,10 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
                             part_index += 1
                             f = open(
                                 _PART_DICT_NAME_FORMAT % (output, part_index),
-                                file_mode,
-                                buffering=1024 * 4)
+                                file_mode)
                 else:
                     for w in p:
-                        content = (w + word_seperator).encode('utf-8')
+                        content = (w + word_seperator).encode(outencoding)
                         f.write(content)
                         progress += 1
                         line_length = len(content)
@@ -389,17 +387,16 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
                             part_index += 1
                             f = open(
                                 _PART_DICT_NAME_FORMAT % (output, part_index),
-                                file_mode,
-                                buffering=1024 * 4)
+                                file_mode)
             else:
                 # complex rule, more join cost.
                 if len(productor.productors) > 1:
                     for w in p:
-                        f.write((''.join(w) + word_seperator).encode('utf-8'))
+                        f.write((''.join(w) + word_seperator).encode(outencoding))
                         progress += 1
                 else:
                     for w in p:
-                        f.write((w + word_seperator).encode('utf-8'))
+                        f.write((w + word_seperator).encode(outencoding))
                         progress += 1
         else:
             print('python 2.x not supported')
@@ -484,13 +481,25 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     default=0,
     show_default=True,
     help="set 1 for enter debug mode.")
+@click.option(
+    "--inencoding",
+    type=click.STRING,
+    default=None,
+    show_default=True,
+    help="dict file encoding.")
+@click.option(
+    "--outencoding",
+    type=click.STRING,
+    default='utf-8',
+    show_default=True,
+    help="output file encoding.")
 @click.argument("output", type=click.Path())
 def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size,
-        append_mode, seperator, debug_mode, output):
+        append_mode, seperator, debug_mode, inencoding, outencoding, output):
     if mode in _MODES:
         generate_dict_by_rule(mode, dictlist, rule, dict_cache,
                               global_repeat_mode, part_size, append_mode,
-                              seperator, debug_mode, output)
+                              seperator, debug_mode, inencoding, outencoding, output)
     else:
         click.echo(
             "unknown mode, try use 'python TTDictGen.py --help' for get more information."

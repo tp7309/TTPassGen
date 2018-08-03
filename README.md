@@ -80,6 +80,8 @@ Options:
 
                                  &#160; = one space
                                  [default: ]
+  --inencoding TEXT              dict file encoding.
+  --outencoding TEXT             output file encoding.  [default: utf-8]
   --help                         Show this message and exit.
 ```
 generated password displayed line by line in `OUTPUT`. It is recommended to use Notepad++ to open this file(`utf-8`).

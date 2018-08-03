@@ -426,9 +426,9 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     show_default=True,
     default="",
     help=
-    "define word format, $0 means refer first file in wordlist, some built-in charsets:\n\n"
+    "define word format, $0 means refer first file in dictlist option, some built-in charsets:\n\n"
     + format_dict(_BUILT_IN_CHARSET) +
-    "\n\nexample: [?dA]{1:2}$0\nview documentation for more information.")
+    "\n\nexample: [?dA]{1:2}$0\nview github *Examples* section for more information.")
 @click.option(
     "--dict_cache",
     "-c",

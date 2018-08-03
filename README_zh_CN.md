@@ -74,6 +74,8 @@ Options:
 
                                  &#160; = 一个空格
                                  [default: ]
+  --inencoding TEXT              字典文件编码，默认采用平台默认值。
+  --outencoding TEXT             输出文件编码.  [default: utf-8]                               
   --help                         显示帮助信息。
 ```
 输出文件采用utf-8编码，每个密码占一行，推荐使用Notepad++打开。

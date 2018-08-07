@@ -211,7 +211,10 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
     worker.start()
     while not result[0]:
         time.sleep(0.05)
-    pbar = tqdm(total=result[1], unit=' word')
+    if os.name == 'nt':
+        pbar = tqdm(total=result[1], unit=' word', ascii=True)
+    else:
+        pbar = tqdm(total=result[1], unit=' word')
     progress = 0
     while progress < pbar.total:
         time.sleep(0.1)

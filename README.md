@@ -25,7 +25,7 @@ pip install ttpassgen
 if you are using the windows operating system, you could just use the [release version](https://github.com/tp7309/TTPassGen/releases).
 
 # Requirements
-Python 2 (version 2.7 or later), or Python 3 (version 3.3 or later).
+Python 3.5 or later.
 
 # Quick Start
 > Switch to the project's `ttpassgen` directory if you want use ttpassgen by downloaded source code.

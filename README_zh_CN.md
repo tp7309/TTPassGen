@@ -23,7 +23,7 @@ pip install ttpassgen
 如果你使用的是Windows操作系统，可以直接下载[release version](https://github.com/tp7309/TTPassGen/releases)，这样就不需要Python环境了。
 
 # 使用要求
-Python 2 (version 2.7 or later), or Python 3 (version 3.3 or later).
+Python 3.5 or later.
 如果你使用的是Windows操作系统，不需要Python环境，也可以直接下载[release version](https://github.com/tp7309/TTPassGen/releases)。
 
 # 快速使用

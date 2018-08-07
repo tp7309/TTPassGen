@@ -98,8 +98,8 @@ generated password displayed line by line in `OUTPUT`. It is recommended to use 
 
 **[]{m:n:r}**
 ```
-when repeatMode is `?`, [123]{1,2:?} -> 1 2 3 12 13 21 23 31 32
-when repeatMode is `*`, [123]{1,2:*} -> 1 2 3 11 12 13 21 22 23 31 32 33
+when repeatMode is `?`, [123]{1:2:?} -> 1 2 3 12 13 21 23 31 32
+when repeatMode is `*`, [123]{1:2:*} -> 1 2 3 11 12 13 21 22 23 31 32 33
 ```
 
 **[]{m:n}**

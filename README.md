@@ -15,7 +15,7 @@ README i18n: [中文说明](https://github.com/tp7309/TTPassGen/blob/master/READ
 - time-consuming estimates, output size estimates, and real-time progress reports.
 - unicode word support by using wordlist option.
 - Generation of large amounts of passwords at once, no output size limit.
-- it can split output by file size.
+- support split output by file size.
 
 # Install
 `TTPassGen` can be easily installed using pip:
@@ -84,7 +84,7 @@ Options:
   --outencoding TEXT             output file encoding.  [default: utf-8]
   --help                         Show this message and exit.
 ```
-generated password displayed line by line in `OUTPUT`. It is recommended to use Notepad++ to open this file(`utf-8`).
+generated password displayed line by line in `OUTPUT`. It is recommended to use *Notepad++* to open this file(`utf-8`).
 
 # Examples
 **[]**  Used to wrap charset.
@@ -94,12 +94,12 @@ generated password displayed line by line in `OUTPUT`. It is recommended to use 
 `[123] -> 1 2 3`
 
 **[]?** 0 or 1 repetitions.
-`[123] -> '' 1 2 3`
+`[123]? -> '' 1 2 3`
 
 **[]{m:n:r}**
 ```
-when repeatMode is `?`, [123]{1:2:?} -> 1 2 3 12 13 21 23 31 32
-when repeatMode is `*`, [123]{1:2:*} -> 1 2 3 11 12 13 21 22 23 31 32 33
+when repeatMode is '?', [123]{1:2:?} -> 1 2 3 12 13 21 23 31 32
+when repeatMode is '*', [123]{1:2:*} -> 1 2 3 11 12 13 21 22 23 31 32 33
 ```
 
 **[]{m:n}**

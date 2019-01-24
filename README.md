@@ -14,7 +14,7 @@ README i18n: [中文说明](https://github.com/tp7309/TTPassGen/blob/master/READ
 - simple rule format, and easy to use, rule could be defined similar regex's style.
 - time-consuming estimates, output size estimates, and real-time progress reports.
 - unicode word support by using wordlist option.
-- Generation of large amounts of passwords at once, no output size limit.
+- generation of large amounts of passwords at once, no output size limit.
 - support split output by file size.
 
 # Install
@@ -76,10 +76,8 @@ Options:
   -a, --append_mode INTEGER      whether append content to OUTPUT or not.
                                  [default: 0]
   -s, --seperator TEXT           word seperator, by default, each word
-                                 occupies one line. special char:
-
-                                 &#160; = one space
-                                 [default: ]
+                                 occupies one line.
+                                 [default: Mac/Linux: \n, Windows: \r\n]
   --inencoding TEXT              dict file encoding.
   --outencoding TEXT             output file encoding.  [default: utf-8]
   --help                         Show this message and exit.
@@ -110,8 +108,8 @@ same as `[]{n:n:r}`.
 
 **$no** ref dict file index from `dictlist` option.
 ```
-ttpassgen --dictlist in.dict,in2.dict --rule $0[_]?$1 -s "&#160;" out.dict
-when dictlist option defined as `in.dict,in2.dict`,
+ttpassgen --dictlist in.dict,in2.dict --rule $0[_]?$1 -s " " out.dict
+when dictlist option defined as `in.dict,in2.dict` and *seperator* is one space,
 in.dict content:
 word11
 word12

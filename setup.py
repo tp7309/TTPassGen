@@ -37,6 +37,7 @@ setup(
     keywords=
     'ttpassgen crunch password-generator wordlist password-dict password-dict-generator brute-force word-combination',
     long_description=long_description,
+    long_description_content_type="text/markdown",
     packages=find_packages(exclude=['docs', 'tests*']),
     include_package_data=True,
     install_requires=install_requires,

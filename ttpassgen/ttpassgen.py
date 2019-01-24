@@ -430,8 +430,8 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     default="",
     help=
     "define word format, $0 means refer first file in dictlist option, some built-in charsets:\n\n"
-    + format_dict(_BUILT_IN_CHARSET) +
-    "\n\nexample: [?dA]{1:2}$0\nview github *Examples* section for more information.")
+    + format_dict(_BUILT_IN_CHARSET)
+    + "\n\nexample: [?dA]{1:2}$0\nview github *Examples* section for more information.")
 @click.option(
     "--dict_cache",
     "-c",
@@ -440,10 +440,10 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     default=500,
     help=
     "each element in 'dictlist' option represents a dict file path, this option define"
-    +
-    " the maximum amount of memory(MB) that can be used when reading their contents,"
-    +
-    "increasing this value when the file is large may increase the build speed."
+
+    + " the maximum amount of memory(MB) that can be used when reading their contents,"
+
+    + "increasing this value when the file is large may increase the build speed."
 )
 @click.option(
     "--global_repeat_mode",
@@ -451,8 +451,8 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     show_default=True,
     default='?',
     type=click.STRING,
-    help="whether the character is allowd to repeat:\n\n" +
-    format_dict(_REPEAT_MODES))
+    help="whether the character is allowd to repeat:\n\n"
+    + format_dict(_REPEAT_MODES))
 @click.option(
     "--part_size",
     "-p",
@@ -476,7 +476,7 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     default='',
     show_default=True,
     help=
-    "word seperator, by default, each word occupies one line. special char:\n\n"
+    "word seperator, by default, Mac/Linudx: \n, Windows: \r\n"
     + format_dict(_SPECIAL_SEPERATORS_NAME))
 @click.option(
     "--debug_mode",

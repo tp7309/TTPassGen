@@ -2,6 +2,7 @@
 [![Build Status](https://travis-ci.org/tp7309/TTPassGen.svg?branch=master)](https://travis-ci.org/tp7309/TTPassGen)
 [![Coverage Status](https://coveralls.io/repos/github/tp7309/TTPassGen/badge.svg?branch=master)](https://coveralls.io/github/tp7309/TTPassGen?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/25f05aa766c34eea9b9692725237e873)](https://www.codacy.com/app/tp7309/TTPassGen?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tp7309/TTPassGen&amp;utm_campaign=Badge_Grade)
+[![Rawsec's CyberSecurity Inventory](https://inventory.rawsec.ml/img/badges/Rawsec-inventoried-FF5050_plastic_without_logo.svg)](https://inventory.rawsec.ml/tools.html#TTPassGen)
 
 TTPassGen是一个支持灵活定制的密码字典生成器，我们可以轻松地定义各种规则来生成所需的单词组合。因为基于Python，所以可以跨平台使用。
 
@@ -23,7 +24,7 @@ pip install ttpassgen
 如果你使用的是Windows操作系统，可以直接下载[release version](https://github.com/tp7309/TTPassGen/releases)，这样就不需要Python环境了。
 
 # 使用要求
-Python 3.5 or later.
+Python 3.5或其之后的版本。
 如果你使用的是Windows操作系统，不需要Python环境，也可以直接下载[release version](https://github.com/tp7309/TTPassGen/releases)。
 
 # 快速使用
@@ -102,7 +103,7 @@ repeatMode为 '*', [123]{1:2:*} -> 1 2 3 11 12 13 21 22 23 31 32 33
 **$no** 引用`dictlist`选项中的输入文件的内容。
 ```
 ttpassgen --dictlist in.dict,in2.dict --rule $0[_]?$1 -s " " out.dict
-例如当`distlist`选项定义为 `in.dict,in2.dict` ，，指定单词分隔符为一个空格时，
+例如当`distlist`选项定义为 `in.dict,in2.dict`，指定单词分隔符为一个空格时，
 in.dict文件内容:
 word11
 word12

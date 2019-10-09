@@ -12,6 +12,7 @@ import math
 import functools
 from multiprocessing import Array
 from multiprocessing import Process
+from multiprocessing import freeze_support
 import threading
 from tqdm import tqdm
 from collections import OrderedDict
@@ -22,8 +23,8 @@ _MODES = OrderedDict([(0, 'combination rule mode')])
 _BUILT_IN_CHARSET = OrderedDict(
     [("?l", "abcdefghijklmnopqrstuvwxyz"),
      ("?u", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"), ("?d", "0123456789"),
-     ("?s", "!\"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"), ("?a", "?l?u?d?s"), ("?q",
-                                                                       "]")])
+     ("?s", "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"), ("?a", "?l?u?d?s"),
+     ("?q", "]")])
 
 _REPEAT_MODES = OrderedDict([("?", "0 or 1 repetitions"),
                              ("*", "0 or more repetitions")])
@@ -101,7 +102,7 @@ def get_expanded_charset(charset):
 
 def echo_tips(var_name):
     click.echo(
-        "%s is invalid, , try use 'python TDictGen.py --help' for get more information."
+        "%s is invalid, , try use 'python ttpassgen --help' for get more information."
         % (var_name))
 
 
@@ -255,7 +256,7 @@ def extract_rules(dictList, rule, global_repeat_mode):
                 if len(match) > 2:
                     len_info = match[2][1:-1].split(':')
                     if len(len_info) >= 2:
-                        if re.match('-?\d+', len_info[
+                        if re.match('-?\\d+', len_info[
                                 1]):  # []{min_length:max_length:repeat_mode}
                             min_length = int(len_info[0])
                             max_length = int(len_info[1])
@@ -505,10 +506,11 @@ def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size,
                               seperator, debug_mode, inencoding, outencoding, output)
     else:
         click.echo(
-            "unknown mode, try use 'python TTDictGen.py --help' for get more information."
+            "unknown mode, try use 'ttpassgen --help' for get more information."
         )
 
 
 if __name__ == "__main__":
+    freeze_support()
     cli()
-    # cli.main(['-d', '../tests/in.dict', '-r', '[?l]{5}', 'out.dict'])
+    # cli.main(['-d', '../tests/in.dict', '-r', '[123]{2:3}[ab]', 'out.dict'])

@@ -3,6 +3,7 @@ out.dict
 out.dict.1
 out.dict.2
 coverage_html/
+Pipfile.lock
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

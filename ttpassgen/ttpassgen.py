@@ -37,6 +37,11 @@ _PART_DICT_NAME_FORMAT = '%s.%d'
 
 
 # Rule class start
+
+# like char array, wrap with [], format:
+# []{minLength:maxLength:repeat_mode}
+# []{minLength:maxLength}
+# []{length}
 class CharsetRule(object):
     def __init__(self, min_length, max_length, charset, repeat_mode):
         self.min_length = min_length
@@ -45,12 +50,22 @@ class CharsetRule(object):
         self.repeat_mode = repeat_mode
 
 
+# read string from dict_path, format: $dict_index
 class DictRule(object):
-    def __init__(self, order, dict_path):
-        self.order = order
+    def __init__(self, dict_index, dict_path):
+        self.dict_index = dict_index
         self.dict_path = dict_path
 
 
+# normal string, format:
+# $(string1){minLength:maxLength:repeat_mode}
+# $(string1,string2){minLength:maxLength:repeat_mode}
+class StringListRule(object):
+    def __init__(self, min_length, max_length, strlist, repeat_mode):
+        self.min_length = min_length
+        self.max_length = max_length
+        self.strlist = strlist
+        self.repeat_mode = repeat_mode
 # Rule class end
 
 
@@ -236,18 +251,25 @@ def extract_rules(dictList, rule, global_repeat_mode):
     dict_count = len(splited_dict)
     re_charset = r"(\[([^\]]+?)\](\?|(\{-?\d+:-?\d+(:[\?\*])?\})|(\{-?\d+(:[\?\*])?\}))?)"
     re_dict = r"(\$(\d{1,%s}))" % (dict_count if dict_count > 0 else 1)
-    re_rule = r"%s|%s" % (re_charset, re_dict)
+    re_strlist = r"((?<=\$\()(\S+?)\)(\{\d+:\d+(:[\?\*])?\}))"
+    re_rule = r"%s|%s|%s" % (re_charset, re_dict, re_strlist)
     rules = []
     matches_length = 0
     matches = re.findall(re_rule, rule)
     try:
-        for match in matches:
-            match = list(filter(len, match))  # may have some empty element
+        for match_index, match in enumerate(matches):
+            match = list(filter(len, match))  # filter empty element
+            matches[match_index] = match
             matches_length += len(match[0])
             if re.match(re_dict, match[0]):
-                order = int(match[1])
-                dict_rule = DictRule(order, splited_dict[order])
+                dict_index = int(match[1])
+                dict_rule = DictRule(dict_index, splited_dict[dict_index])
                 rules.append(dict_rule)
+            elif re.match(re_strlist, match[0]):
+                strlist = match[1].split(',')
+                min_length, max_length, repeat_mode = match[2][1:-1].split(':')
+                string_list_rule = StringListRule(min_length, max_length, strlist, repeat_mode)
+                rules.append(string_list_rule)
             else:
                 min_length = 0
                 max_length = 1
@@ -257,7 +279,7 @@ def extract_rules(dictList, rule, global_repeat_mode):
                     len_info = match[2][1:-1].split(':')
                     if len(len_info) >= 2:
                         if re.match('-?\\d+', len_info[
-                                1]):  # []{min_length:max_length:repeat_mode}
+                                1]):  # check []{min_length:max_length:repeat_mode}
                             min_length = int(len_info[0])
                             max_length = int(len_info[1])
                             if (len(len_info) > 2):
@@ -277,10 +299,14 @@ def extract_rules(dictList, rule, global_repeat_mode):
                 charset_rule = CharsetRule(min_length, max_length,
                                            expanded_charset, repeat_mode)
                 rules.append(charset_rule)
+        # scan whole rule string, unrecognized charactor fragments are treated as ordinary strings.
+        
     except IndexError:
         return None
     if matches_length <= 0:
-        return None
+        # no match rule, treat as orinary string, appear 1 time.
+        string_list_rule = StringListRule(1, 1, rule, '?')
+        rules.append(string_list_rule)
     return rules
 
 
@@ -512,5 +538,6 @@ def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size,
 
 if __name__ == "__main__":
     freeze_support()
-    cli()
-    # cli.main(['-d', '../tests/in.dict', '-r', '[123]{2:3}[ab]', 'out.dict'])
+    # cli()
+    cli.main(['-d', '../tests/in.dict', '-r', 'holder0$(123){2:3:?}holder1[ab]$holder2', 'out.dict'])
+    # cli.main(['-d', 'tests/in.dict', '-r', '[123]{2:3}[ab]', 'out.dict'])

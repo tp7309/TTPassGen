@@ -5,10 +5,14 @@ verify_ssl = true
 
 [dev-packages]
 flake8 = "*"
+nose2 = "*"
+autopep8 = "*"
 
 [packages]
 tqdm = ">=4.23"
 click = "==6.7"
+nose2 = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.7"

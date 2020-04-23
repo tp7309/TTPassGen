@@ -16,6 +16,7 @@ from multiprocessing import freeze_support
 import threading
 from tqdm import tqdm
 from collections import OrderedDict
+import uuid
 
 
 _MODES = OrderedDict([(0, 'combination rule mode')])
@@ -43,7 +44,8 @@ _PART_DICT_NAME_FORMAT = '%s.%d'
 # []{minLength:maxLength}
 # []{length}
 class CharsetRule(object):
-    def __init__(self, min_length, max_length, charset, repeat_mode):
+    def __init__(self, raw_rule, min_length, max_length, charset, repeat_mode):
+        self.raw_rule = raw_rule
         self.min_length = min_length
         self.max_length = max_length
         self.charset = charset
@@ -52,7 +54,8 @@ class CharsetRule(object):
 
 # read string from dict_path, format: $dict_index
 class DictRule(object):
-    def __init__(self, dict_index, dict_path):
+    def __init__(self, raw_rule, dict_index, dict_path):
+        self.raw_rule = raw_rule
         self.dict_index = dict_index
         self.dict_path = dict_path
 
@@ -61,7 +64,8 @@ class DictRule(object):
 # $(string1){minLength:maxLength:repeat_mode}
 # $(string1,string2){minLength:maxLength:repeat_mode}
 class StringListRule(object):
-    def __init__(self, min_length, max_length, strlist, repeat_mode):
+    def __init__(self, raw_rule, min_length, max_length, strlist, repeat_mode):
+        self.raw_rule = raw_rule
         self.min_length = min_length
         self.max_length = max_length
         self.strlist = strlist
@@ -139,6 +143,15 @@ def get_charset_rule_data_size(rule):
     return count, size
 
 
+def get_string_list_rule_data_size(rule):
+    size = count = float(0)
+    if rule.min_length == 1 and rule.max_length == 1 and len(rule.strlist) == 1:
+        count += 1
+        size += len(rule.raw_rule)
+        return count, size
+    return 1, 1
+
+
 def get_dict_rule_data_size(rule, inencoding):
     sum_lines = 0
     sepLen = 1
@@ -173,6 +186,14 @@ def charset_word_productor(repeat_mode, expanded_charset, length):
         return itertools.product(expanded_charset, repeat=length)
 
 
+@charset_word_productor_wrapper
+def string_list_word_productor(repeat_mode, strlist, length):
+    if repeat_mode == '?':
+        return itertools.permutations(strlist, r=length)
+    else:
+        return itertools.product(strlist, repeat=length)
+
+
 def large_dict_word_productor(rule, inencoding):
     with open(rule.dict_path, 'r', encoding=inencoding) as f:
         for line in f:
@@ -195,11 +216,13 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
         echo_tips("rule")
         return
 
+    # check if the dictionary file exists.
     dict_files = []
     if dictlist:
         dict_files = re.split(r',\s*', dictlist) if dictlist else []
         for f in dict_files:
             if not os.path.exists(f):
+                click.echo("dict file '%s' does not exist." % (f))
                 echo_tips("dictlist")
                 return
 
@@ -207,10 +230,11 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
         echo_tips("global_repeat_mode")
         return
 
+    analyzed_rule = [rule1.raw_rule for rule1 in rules]
     print((
-        "mode: %s, global_repeat_mode: %s, part_size: %s, dictlist: %s, dict file encoding: %s, rule: %s"
-    ) % (_MODES[mode], global_repeat_mode,
-         pretty_size(part_size * 1024 * 1024), dict_files, inencoding, rule))
+        "mode: %s, global_repeat_mode: %s, part_size: %s, dictlist: %s, input dict file encoding: %s"
+    ) % (_MODES[mode], global_repeat_mode, pretty_size(part_size * 1024 * 1024), dict_files, inencoding))
+    print("raw rule string: %s, analyzed rules: %s" % (rule, analyzed_rule))
     result = Array(
         'i', [0, 0, 0, 0],
         lock=False)  # [count_done, word_count, progress, finish_flag]
@@ -225,6 +249,7 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
             args=(result, rules, dict_cache, part_size, append_mode, seperator,
                   inencoding, outencoding, output))
     worker.start()
+    # wait product_rule_words() ready
     while not result[0]:
         time.sleep(0.05)
     if os.name == 'nt':
@@ -251,7 +276,7 @@ def extract_rules(dictList, rule, global_repeat_mode):
     dict_count = len(splited_dict)
     re_charset = r"(\[([^\]]+?)\](\?|(\{-?\d+:-?\d+(:[\?\*])?\})|(\{-?\d+(:[\?\*])?\}))?)"
     re_dict = r"(\$(\d{1,%s}))" % (dict_count if dict_count > 0 else 1)
-    re_strlist = r"((?<=\$\()(\S+?)\)(\{\d+:\d+(:[\?\*])?\}))"
+    re_strlist = r"(\$\((\S+?)\)(\{\d+:\d+(:[\?\*])?\}))"
     re_rule = r"%s|%s|%s" % (re_charset, re_dict, re_strlist)
     rules = []
     matches_length = 0
@@ -263,12 +288,15 @@ def extract_rules(dictList, rule, global_repeat_mode):
             matches_length += len(match[0])
             if re.match(re_dict, match[0]):
                 dict_index = int(match[1])
-                dict_rule = DictRule(dict_index, splited_dict[dict_index])
+                dict_rule = DictRule(match[0], dict_index, splited_dict[dict_index])
                 rules.append(dict_rule)
             elif re.match(re_strlist, match[0]):
                 strlist = match[1].split(',')
-                min_length, max_length, repeat_mode = match[2][1:-1].split(':')
-                string_list_rule = StringListRule(min_length, max_length, strlist, repeat_mode)
+                len_info = match[2][1:-1].split(':')
+                min_length = int(len_info[0])
+                max_length = int(len_info[1])
+                repeat_mode = len_info[2]
+                string_list_rule = StringListRule(match[0], min_length, max_length, strlist, repeat_mode)
                 rules.append(string_list_rule)
             else:
                 min_length = 0
@@ -296,16 +324,36 @@ def extract_rules(dictList, rule, global_repeat_mode):
                 if min_length < 0 or max_length < 0 or min_length > max_length or len(
                         expanded_charset) < max_length:
                     return None
-                charset_rule = CharsetRule(min_length, max_length,
+                charset_rule = CharsetRule(match[0], min_length, max_length,
                                            expanded_charset, repeat_mode)
                 rules.append(charset_rule)
-        # scan whole rule string, unrecognized charactor fragments are treated as ordinary strings.
-        
+
+        # scan whole rule string, unrecognized charactor fragments are treated as normal strings,
+        # appear 1 time, so repeat_mode is useless.
+        normal_string_rules = []
+        # use uuid as divider, then split out normal string.
+        divider = '__' + str(uuid.uuid4()) + '__'
+        copyed_rule = rule
+        for match in matches:
+            copyed_rule = copyed_rule.replace(match[0], divider, 1)
+        normal_string_rules = copyed_rule.split(divider)
+
+        # insert normal string rule, remain
+        insert_index = 0
+        for string_rule in normal_string_rules:
+            if not string_rule:
+                # empty string, skip insert
+                insert_index += 1
+            else:
+                strlist = string_rule.split(',')
+                string_list_rule = StringListRule(string_rule, 1, 1, strlist, global_repeat_mode)
+                rules.insert(insert_index, string_list_rule)
+                insert_index += 2
     except IndexError:
         return None
     if matches_length <= 0:
-        # no match rule, treat as orinary string, appear 1 time.
-        string_list_rule = StringListRule(1, 1, rule, '?')
+        # no match rule, treat as normal string, appear 1 time, so repeat_mode is useless.
+        string_list_rule = StringListRule(rule, 1, 1, [rule], global_repeat_mode)
         rules.append(string_list_rule)
     return rules
 
@@ -327,6 +375,22 @@ def generate_words_productor(rules, dict_cache_limit, inencoding):
                     charset_word_productor(rule.repeat_mode, rule.charset,
                                            length))
             word_productors.append(itertools.chain(*p) if len(p) > 1 else p[0])
+        elif isinstance(rule, StringListRule):
+            word_count, word_size = get_string_list_rule_data_size(rule)
+            word_count_list.append(word_count)
+            word_size_list.append(word_size)
+            p = []
+            for length in range(rule.min_length, rule.max_length + 1):
+                p.append(
+                    string_list_word_productor(rule.repeat_mode, rule.strlist,
+                                               length))
+            word_productors.append(itertools.chain(*p) if len(p) > 1 else p[0])
+            print('----------------')
+            for p in word_productors:
+                for w in p:
+                    print(''.join(w) + '  ')
+            print('---------------- end')
+            exit
         else:
             if rule.dict_path in dict_caches:
                 word_productors.append(dict_caches[rule.dict_path])
@@ -539,5 +603,10 @@ def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size,
 if __name__ == "__main__":
     freeze_support()
     # cli()
-    cli.main(['-d', '../tests/in.dict', '-r', 'holder0$(123){2:3:?}holder1[ab]$holder2', 'out.dict'])
+    # cli.main(['-d', 'tests/in.dict', '-r', '$(ab){2:3:?}', 'out.dict'])
+    # cli.main(['-d', 'tests/in.dict', '-r', 'holder0$(123,456,789){2:3:?}holder1[ab]$0holder2', 'out.dict'])
     # cli.main(['-d', 'tests/in.dict', '-r', '[123]{2:3}[ab]', 'out.dict'])
+    list1 =list(itertools.permutations('123', 2))
+    print(list1)
+    list2 = list(itertools.combinations('123', 2))
+    print(list2)

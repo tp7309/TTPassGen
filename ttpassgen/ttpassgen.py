@@ -61,13 +61,13 @@ class DictRule(object):
 
 
 # normal string, format:
-# $(string1){minLength:maxLength:repeat_mode}
-# $(string1,string2){minLength:maxLength:repeat_mode}
+# $(string1){min_repeat:max_repeat:repeat_mode}
+# $(string1,string2){min_repeat:max_repeat:repeat_mode}
 class StringListRule(object):
-    def __init__(self, raw_rule, min_length, max_length, strlist, repeat_mode):
+    def __init__(self, raw_rule, min_repeat, max_repeat, strlist, repeat_mode):
         self.raw_rule = raw_rule
-        self.min_length = min_length
-        self.max_length = max_length
+        self.min_repeat = min_repeat
+        self.max_repeat = max_repeat
         self.strlist = strlist
         self.repeat_mode = repeat_mode
 # Rule class end
@@ -119,15 +119,20 @@ def get_expanded_charset(charset):
     return expanded_charset
 
 
+def echo(msg):
+    click.echo(msg)
+
+
 def echo_tips(var_name):
     click.echo(
-        "%s is invalid, , try use 'python ttpassgen --help' for get more information."
+        "%s is invalid, try use 'ttpassgen --help' for get more information."
         % (var_name))
 
 
 def get_charset_rule_data_size(rule):
     size = count = float(0)
     if rule.repeat_mode == '?':
+        # not allow element repeat in one word, permutation problem: (n!)/(n-k)!
         for word_length in range(rule.min_length, rule.max_length + 1):
             sub_sum = 1
             for i in range(
@@ -137,6 +142,7 @@ def get_charset_rule_data_size(rule):
             count += sub_sum
             size += sub_sum * word_length
     else:
+        # allow element repeat in one word
         for word_length in range(rule.min_length, rule.max_length + 1):
             count += math.pow(len(rule.charset), word_length)
             size += count * word_length
@@ -145,11 +151,28 @@ def get_charset_rule_data_size(rule):
 
 def get_string_list_rule_data_size(rule):
     size = count = float(0)
-    if rule.min_length == 1 and rule.max_length == 1 and len(rule.strlist) == 1:
+    # normal string
+    if rule.min_repeat == 1 and rule.max_repeat == 1 and len(rule.strlist) == 1:
         count += 1
         size += len(rule.raw_rule)
         return count, size
-    return 1, 1
+
+    # string list, only calculate word count.
+    size = float(-1)
+    if rule.repeat_mode == '?':
+        # not allow element repeat in one word, permutation problem: (n!)/(n-k)!
+        for repeat_count in range(rule.min_repeat, rule.max_repeat + 1):
+            sub_sum = 1
+            for i in range(
+                    len(rule.strlist) - repeat_count + 1,
+                    len(rule.strlist) + 1):
+                sub_sum *= i
+            count += sub_sum
+    else:
+        # allow element repeat in one word
+        for repeat_count in range(rule.min_repeat, rule.max_repeat + 1):
+            count += math.pow(len(rule.strlist), repeat_count)
+    return count, size
 
 
 def get_dict_rule_data_size(rule, inencoding):
@@ -187,11 +210,11 @@ def charset_word_productor(repeat_mode, expanded_charset, length):
 
 
 @charset_word_productor_wrapper
-def string_list_word_productor(repeat_mode, strlist, length):
+def string_list_word_productor(repeat_mode, strlist, repeat_count):
     if repeat_mode == '?':
-        return itertools.permutations(strlist, r=length)
+        return itertools.permutations(strlist, r=repeat_count)
     else:
-        return itertools.product(strlist, repeat=length)
+        return itertools.product(strlist, repeat=repeat_count)
 
 
 def large_dict_word_productor(rule, inencoding):
@@ -209,11 +232,10 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
                           part_size, append_mode, seperator, debug_mode, inencoding,
                           outencoding, output):
     if not dictlist and not rule:
-        click.echo("dictlist and rule option must have at least one value!")
+        echo("dictlist and rule option must have at least one value!")
         return
     rules = extract_rules(dictlist, rule, global_repeat_mode)
     if not rules:
-        echo_tips("rule")
         return
 
     # check if the dictionary file exists.
@@ -222,7 +244,7 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
         dict_files = re.split(r',\s*', dictlist) if dictlist else []
         for f in dict_files:
             if not os.path.exists(f):
-                click.echo("dict file '%s' does not exist." % (f))
+                echo("dict file '%s' does not exist." % (f))
                 echo_tips("dictlist")
                 return
 
@@ -268,7 +290,7 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
     if (progress < pbar.total):
         pbar.update(pbar.total - progress)  # avoid stay at 99%
     pbar.close()
-    click.echo("generate dict complete.")
+    echo("generate dict complete.")
 
 
 def extract_rules(dictList, rule, global_repeat_mode):
@@ -293,10 +315,15 @@ def extract_rules(dictList, rule, global_repeat_mode):
             elif re.match(re_strlist, match[0]):
                 strlist = match[1].split(',')
                 len_info = match[2][1:-1].split(':')
-                min_length = int(len_info[0])
-                max_length = int(len_info[1])
+                min_repeat = int(len_info[0])
+                max_repeat = int(len_info[1])
                 repeat_mode = len_info[2]
-                string_list_rule = StringListRule(match[0], min_length, max_length, strlist, repeat_mode)
+
+                if max_repeat > len(strlist):
+                    echo("rule '%s' is invalid, max_repeat(%d) cannot be greater than the size of string list(%d)!"
+                         % (match[0], max_repeat, len(strlist)))
+                    return None
+                string_list_rule = StringListRule(match[0], min_repeat, max_repeat, strlist, repeat_mode)
                 rules.append(string_list_rule)
             else:
                 min_length = 0
@@ -321,8 +348,12 @@ def extract_rules(dictList, rule, global_repeat_mode):
                         repeat_mode = len_info[0]  # ?
                 else:
                     min_length = max_length = 1
-                if min_length < 0 or max_length < 0 or min_length > max_length or len(
-                        expanded_charset) < max_length:
+                if min_length < 0 or max_length < 0 or min_length > max_length:
+                    echo("invalid min_repeat: %d or max_repeat: %d, rule: %s" % (min_length, max_length, match[0]))
+                    return None
+                elif max_length > len(expanded_charset):
+                    echo("rule '%s' is invalid, max_repeat(%d) cannot be greater than the size of charset(%d)!"
+                         % (match[0], max_length, len(expanded_charset)))
                     return None
                 charset_rule = CharsetRule(match[0], min_length, max_length,
                                            expanded_charset, repeat_mode)
@@ -338,23 +369,22 @@ def extract_rules(dictList, rule, global_repeat_mode):
             copyed_rule = copyed_rule.replace(match[0], divider, 1)
         normal_string_rules = copyed_rule.split(divider)
 
-        # insert normal string rule, remain
+        # insert normal string rule, remain rule's order
         insert_index = 0
         for string_rule in normal_string_rules:
             if not string_rule:
                 # empty string, skip insert
                 insert_index += 1
             else:
-                strlist = string_rule.split(',')
-                string_list_rule = StringListRule(string_rule, 1, 1, strlist, global_repeat_mode)
+                echo("found normal string: %s" % (string_rule))
+                string_list_rule = StringListRule(string_rule, 1, 1, [string_rule], global_repeat_mode)
                 rules.insert(insert_index, string_list_rule)
                 insert_index += 2
     except IndexError:
+        echo_tips('rule')
         return None
-    if matches_length <= 0:
-        # no match rule, treat as normal string, appear 1 time, so repeat_mode is useless.
-        string_list_rule = StringListRule(rule, 1, 1, [rule], global_repeat_mode)
-        rules.append(string_list_rule)
+    if not rules:
+        echo_tips("rule")
     return rules
 
 
@@ -370,27 +400,25 @@ def generate_words_productor(rules, dict_cache_limit, inencoding):
             word_count_list.append(word_count)
             word_size_list.append(word_size)
             p = []
-            for length in range(rule.min_length, rule.max_length + 1):
+            for repeat_count in range(rule.min_length, rule.max_length + 1):
                 p.append(
                     charset_word_productor(rule.repeat_mode, rule.charset,
-                                           length))
+                                           repeat_count))
             word_productors.append(itertools.chain(*p) if len(p) > 1 else p[0])
         elif isinstance(rule, StringListRule):
             word_count, word_size = get_string_list_rule_data_size(rule)
             word_count_list.append(word_count)
-            word_size_list.append(word_size)
+            if word_size < 0:
+                echo("skip calculate StringListRule size, rule: %s" % (rule.raw_rule))
+                word_size_list.append(0)
+            else:
+                word_size_list.append(word_size)
             p = []
-            for length in range(rule.min_length, rule.max_length + 1):
+            for repeat_count in range(rule.min_repeat, rule.max_repeat + 1):
                 p.append(
                     string_list_word_productor(rule.repeat_mode, rule.strlist,
-                                               length))
+                                               repeat_count))
             word_productors.append(itertools.chain(*p) if len(p) > 1 else p[0])
-            print('----------------')
-            for p in word_productors:
-                for w in p:
-                    print(''.join(w) + '  ')
-            print('---------------- end')
-            exit
         else:
             if rule.dict_path in dict_caches:
                 word_productors.append(dict_caches[rule.dict_path])
@@ -574,7 +602,7 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     type=click.INT,
     default=0,
     show_default=True,
-    help="set 1 for enter debug mode.")
+    help="set 1 for debug code, only for developer.")
 @click.option(
     "--inencoding",
     type=click.STRING,
@@ -595,18 +623,15 @@ def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size,
                               global_repeat_mode, part_size, append_mode,
                               seperator, debug_mode, inencoding, outencoding, output)
     else:
-        click.echo(
+        echo(
             "unknown mode, try use 'ttpassgen --help' for get more information."
         )
 
 
 if __name__ == "__main__":
     freeze_support()
-    # cli()
-    # cli.main(['-d', 'tests/in.dict', '-r', '$(ab){2:3:?}', 'out.dict'])
-    # cli.main(['-d', 'tests/in.dict', '-r', 'holder0$(123,456,789){2:3:?}holder1[ab]$0holder2', 'out.dict'])
-    # cli.main(['-d', 'tests/in.dict', '-r', '[123]{2:3}[ab]', 'out.dict'])
-    list1 =list(itertools.permutations('123', 2))
-    print(list1)
-    list2 = list(itertools.combinations('123', 2))
-    print(list2)
+    cli()
+    # cli.main(['-d', 'tests/in.dict', '-r', '[123]{2:3}', '--debug_mode', '1', 'out.dict'])
+    # cli.main(['-d', 'tests/in.dict', '-r', 'aa$(123,456,789){2:3:?}bb[ab]$0cc', 'out.dict'])
+    # cli.main(['-d', 'tests/in.dict', '-r', 'aa$(123,456){1:2:?}bb[xy]cc', 'out.dict'])
+    # cli.main(['-d', 'tests/in.dict', '-r', '[123]{2:3}', 'out.dict'])

@@ -38,7 +38,7 @@ Python 3.5 or later.
 
 > Switch to the project's `ttpassgen` directory if you want use ttpassgen by downloaded source code.
 
-Example: Generate word list output to _out.dict_, the word format is prefix three digits, only allow 1、2、3, appear 2 or 3 times, end with `xyz`.
+Example: Generate word list output to `out.txt`, the word format is prefix three digits, only allow 1、2、3, appear 2 or 3 times, end with `xyz`.
 
 ```
 ttpassgen -r "[123]{2:3}xyz" out.txt
@@ -93,7 +93,7 @@ Options:
   --help                         Show this message and exit.
 ```
 
-The output file uses `utf-8` encoding by default, tt is recommended to use _Notepad++_ to open this file.
+The output file uses `utf-8` encoding by default, it is recommended to use _Notepad++_ to open this file.
 
 # RuleTypes
 
@@ -192,7 +192,7 @@ Generate 8-digit numeric password:
 [?d]{8:8:*} or [?d]{8:*} or [1234567890]{8:8:*}
 ```
 
-Generate an 8-digit numeric password, and each char in the password can appear at most once. Because the default value of `global repeat mode` is '?', so the repeat mode can be omitted:
+Generate an 8-digit numeric password, and each char in the password can appear at most once. Because the default value of `global repeat mode` is '?', so you can skip set repeat_mode:
 
 ```
 [?d]{8:8:?} or [?d]{8}
@@ -224,7 +224,7 @@ Rule format：
 
   Normal string, same as `$(string){1:1:?}`.
 
-Like `CharArrayRule`, but `StringArrayRule` does not support _Short rule format_.
+Like `CharArrayRule`, but `StringArrayRule` does not support `Short rule format`.
 
 ### Example
 
@@ -243,7 +243,7 @@ age$(10,20,30){1:1:?}
 Choose a number from (10,20,30), then append it after 'age', end with 'x' or 'y':
 
 ```
-age$(10,20,30){1:1:?}[ab]
+age$(10,20,30){1:1:?}[xy]
 ```
 
 ## DictRule

@@ -633,7 +633,7 @@ def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size,
 
 if __name__ == "__main__":
     freeze_support()
-    cli()
 
     # for debug
-    # cli.main(['-d', 'tests/in.dict', '-r', '[123]{2:3}xy', '--debug_mode', '1', 'out.txt'])
+    # cli.main(['-d', 'tests/in.dict', '-r', '[123]{2:3}', '--debug_mode', '1', 'out.txt'])
+    cli()

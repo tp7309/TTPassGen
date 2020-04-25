@@ -21,7 +21,7 @@ import uuid
 
 _MODES = OrderedDict([(0, 'combination rule mode')])
 
-_BUILT_IN_CHARSET = OrderedDict(
+_BUILT_IN_CHAR_ARRAY = OrderedDict(
     [("?l", "abcdefghijklmnopqrstuvwxyz"),
      ("?u", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"), ("?d", "0123456789"),
      ("?s", "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"), ("?a", "?l?u?d?s"),
@@ -29,10 +29,6 @@ _BUILT_IN_CHARSET = OrderedDict(
 
 _REPEAT_MODES = OrderedDict([("?", "0 or 1 repetitions"),
                              ("*", "0 or more repetitions")])
-
-_SPECIAL_SEPERATORS_NAME = OrderedDict([("&#160;", "one space")])
-
-_SPECIAL_SEPERATORS = OrderedDict([("&#160;", " ")])
 
 _PART_DICT_NAME_FORMAT = '%s.%d'
 
@@ -43,12 +39,12 @@ _PART_DICT_NAME_FORMAT = '%s.%d'
 # []{minLength:maxLength:repeat_mode}
 # []{minLength:maxLength}
 # []{length}
-class CharsetRule(object):
-    def __init__(self, raw_rule, min_length, max_length, charset, repeat_mode):
+class CharArrayRule(object):
+    def __init__(self, raw_rule, min_length, max_length, char_array, repeat_mode):
         self.raw_rule = raw_rule
         self.min_length = min_length
         self.max_length = max_length
-        self.charset = charset
+        self.char_array = char_array
         self.repeat_mode = repeat_mode
 
 
@@ -63,7 +59,7 @@ class DictRule(object):
 # normal string, format:
 # $(string1){min_repeat:max_repeat:repeat_mode}
 # $(string1,string2){min_repeat:max_repeat:repeat_mode}
-class StringListRule(object):
+class StringArrayRule(object):
     def __init__(self, raw_rule, min_repeat, max_repeat, strlist, repeat_mode):
         self.raw_rule = raw_rule
         self.min_repeat = min_repeat
@@ -93,7 +89,8 @@ class WordProductor(object):
         total = 0
         count = self.total_count()
         for i, size in enumerate(self.size_list):
-            total += size * count / self.count_list[i]
+            if self.count_list[i] > 0:
+                total += size * count / self.count_list[i]
         total += count * len(sep)
         return total
 
@@ -112,11 +109,11 @@ def format_dict(d):
     return '\n'.join(['%s = %s' % (key, value) for (key, value) in d.items()])
 
 
-def get_expanded_charset(charset):
-    expanded_charset = charset
-    for (key, value) in _BUILT_IN_CHARSET.items():
-        expanded_charset = expanded_charset.replace(key, value)
-    return expanded_charset
+def get_expanded_char_array(char_array):
+    expanded_char_array = char_array
+    for (key, value) in _BUILT_IN_CHAR_ARRAY.items():
+        expanded_char_array = expanded_char_array.replace(key, value)
+    return expanded_char_array
 
 
 def echo(msg):
@@ -129,27 +126,27 @@ def echo_tips(var_name):
         % (var_name))
 
 
-def get_charset_rule_data_size(rule):
+def get_char_array_rule_data_size(rule):
     size = count = float(0)
     if rule.repeat_mode == '?':
         # not allow element repeat in one word, permutation problem: (n!)/(n-k)!
         for word_length in range(rule.min_length, rule.max_length + 1):
             sub_sum = 1
             for i in range(
-                    len(rule.charset) - word_length + 1,
-                    len(rule.charset) + 1):
+                    len(rule.char_array) - word_length + 1,
+                    len(rule.char_array) + 1):
                 sub_sum *= i
             count += sub_sum
             size += sub_sum * word_length
     else:
         # allow element repeat in one word
         for word_length in range(rule.min_length, rule.max_length + 1):
-            count += math.pow(len(rule.charset), word_length)
+            count += math.pow(len(rule.char_array), word_length)
             size += count * word_length
     return count, size
 
 
-def get_string_list_rule_data_size(rule):
+def get_string_array_rule_data_size(rule):
     size = count = float(0)
     # normal string
     if rule.min_repeat == 1 and rule.max_repeat == 1 and len(rule.strlist) == 1:
@@ -187,11 +184,19 @@ def get_dict_rule_data_size(rule, inencoding):
         while chunk:
             sum_lines += chunk.count('\n')
             chunk = read_func(buffer_size)
-    line_seperator_count = sepLen * sum_lines
-    return sum_lines, (os.path.getsize(rule.dict_path) - line_seperator_count)
+
+    # read file last byte for check whether file content end with line separator.
+    with open(rule.dict_path, 'rb', encoding=inencoding) as f:
+        f.seek(-1, os.SEEK_END)
+        last_byte = f.read()
+        if not last_byte == b'\n':
+            sum_lines += 1
+
+    line_separator_count = sepLen * sum_lines
+    return sum_lines, (os.path.getsize(rule.dict_path) - line_separator_count)
 
 
-def charset_word_productor_wrapper(func):
+def char_array_word_productor_wrapper(func):
     @functools.wraps(func)
     def wrapper(*args, **kw):
         f = func(*args, **kw)
@@ -201,16 +206,16 @@ def charset_word_productor_wrapper(func):
     return wrapper
 
 
-@charset_word_productor_wrapper
-def charset_word_productor(repeat_mode, expanded_charset, length):
+@char_array_word_productor_wrapper
+def char_array_word_productor(repeat_mode, expanded_char_array, length):
     if repeat_mode == '?':
-        return itertools.permutations(expanded_charset, r=length)
+        return itertools.permutations(expanded_char_array, r=length)
     else:
-        return itertools.product(expanded_charset, repeat=length)
+        return itertools.product(expanded_char_array, repeat=length)
 
 
-@charset_word_productor_wrapper
-def string_list_word_productor(repeat_mode, strlist, repeat_count):
+@char_array_word_productor_wrapper
+def string_array_word_productor(repeat_mode, strlist, repeat_count):
     if repeat_mode == '?':
         return itertools.permutations(strlist, r=repeat_count)
     else:
@@ -229,7 +234,7 @@ def normal_dict_word_productor(rule, inencoding):
 
 
 def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
-                          part_size, append_mode, seperator, debug_mode, inencoding,
+                          part_size, append_mode, separator, debug_mode, inencoding,
                           outencoding, output):
     if not dictlist and not rule:
         echo("dictlist and rule option must have at least one value!")
@@ -263,12 +268,12 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
     if not debug_mode:
         worker = Process(
             target=product_rule_words,
-            args=(result, rules, dict_cache, part_size, append_mode, seperator,
+            args=(result, rules, dict_cache, part_size, append_mode, separator,
                   inencoding, outencoding, output))
     else:
         worker = threading.Thread(
             target=product_rule_words,
-            args=(result, rules, dict_cache, part_size, append_mode, seperator,
+            args=(result, rules, dict_cache, part_size, append_mode, separator,
                   inencoding, outencoding, output))
     worker.start()
     # wait product_rule_words() ready
@@ -296,10 +301,10 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
 def extract_rules(dictList, rule, global_repeat_mode):
     splited_dict = re.split(r',\s*', dictList) if dictList else []
     dict_count = len(splited_dict)
-    re_charset = r"(\[([^\]]+?)\](\?|(\{-?\d+:-?\d+(:[\?\*])?\})|(\{-?\d+(:[\?\*])?\}))?)"
+    re_char_array = r"(\[([^\]]+?)\](\?|(\{-?\d+:-?\d+(:[\?\*])?\})|(\{-?\d+(:[\?\*])?\}))?)"
     re_dict = r"(\$(\d{1,%s}))" % (dict_count if dict_count > 0 else 1)
     re_strlist = r"(\$\((\S+?)\)(\{\d+:\d+(:[\?\*])?\}))"
-    re_rule = r"%s|%s|%s" % (re_charset, re_dict, re_strlist)
+    re_rule = r"%s|%s|%s" % (re_char_array, re_dict, re_strlist)
     rules = []
     matches_length = 0
     matches = re.findall(re_rule, rule)
@@ -323,12 +328,12 @@ def extract_rules(dictList, rule, global_repeat_mode):
                     echo("rule '%s' is invalid, max_repeat(%d) cannot be greater than the size of string list(%d)!"
                          % (match[0], max_repeat, len(strlist)))
                     return None
-                string_list_rule = StringListRule(match[0], min_repeat, max_repeat, strlist, repeat_mode)
-                rules.append(string_list_rule)
+                string_array_rule = StringArrayRule(match[0], min_repeat, max_repeat, strlist, repeat_mode)
+                rules.append(string_array_rule)
             else:
                 min_length = 0
                 max_length = 1
-                expanded_charset = get_expanded_charset(match[1])
+                expanded_char_array = get_expanded_char_array(match[1])
                 repeat_mode = global_repeat_mode
                 if len(match) > 2:
                     len_info = match[2][1:-1].split(':')
@@ -351,13 +356,13 @@ def extract_rules(dictList, rule, global_repeat_mode):
                 if min_length < 0 or max_length < 0 or min_length > max_length:
                     echo("invalid min_repeat: %d or max_repeat: %d, rule: %s" % (min_length, max_length, match[0]))
                     return None
-                elif max_length > len(expanded_charset):
-                    echo("rule '%s' is invalid, max_repeat(%d) cannot be greater than the size of charset(%d)!"
-                         % (match[0], max_length, len(expanded_charset)))
+                elif max_length > len(expanded_char_array):
+                    echo("rule '%s' is invalid, max_repeat(%d) cannot be greater than the size of char_array(%d)!"
+                         % (match[0], max_length, len(expanded_char_array)))
                     return None
-                charset_rule = CharsetRule(match[0], min_length, max_length,
-                                           expanded_charset, repeat_mode)
-                rules.append(charset_rule)
+                char_array_rule = CharArrayRule(match[0], min_length, max_length,
+                                                expanded_char_array, repeat_mode)
+                rules.append(char_array_rule)
 
         # scan whole rule string, unrecognized charactor fragments are treated as normal strings,
         # appear 1 time, so repeat_mode is useless.
@@ -377,8 +382,8 @@ def extract_rules(dictList, rule, global_repeat_mode):
                 insert_index += 1
             else:
                 echo("found normal string: %s" % (string_rule))
-                string_list_rule = StringListRule(string_rule, 1, 1, [string_rule], global_repeat_mode)
-                rules.insert(insert_index, string_list_rule)
+                string_array_rule = StringArrayRule(string_rule, 1, 1, [string_rule], global_repeat_mode)
+                rules.insert(insert_index, string_array_rule)
                 insert_index += 2
     except IndexError:
         echo_tips('rule')
@@ -395,29 +400,29 @@ def generate_words_productor(rules, dict_cache_limit, inencoding):
     dict_caches = {}
     result_cache = dict_cache_limit
     for rule in rules:
-        if isinstance(rule, CharsetRule):
-            word_count, word_size = get_charset_rule_data_size(rule)
+        if isinstance(rule, CharArrayRule):
+            word_count, word_size = get_char_array_rule_data_size(rule)
             word_count_list.append(word_count)
             word_size_list.append(word_size)
             p = []
             for repeat_count in range(rule.min_length, rule.max_length + 1):
                 p.append(
-                    charset_word_productor(rule.repeat_mode, rule.charset,
-                                           repeat_count))
+                    char_array_word_productor(rule.repeat_mode, rule.char_array,
+                                              repeat_count))
             word_productors.append(itertools.chain(*p) if len(p) > 1 else p[0])
-        elif isinstance(rule, StringListRule):
-            word_count, word_size = get_string_list_rule_data_size(rule)
+        elif isinstance(rule, StringArrayRule):
+            word_count, word_size = get_string_array_rule_data_size(rule)
             word_count_list.append(word_count)
             if word_size < 0:
-                echo("skip calculate StringListRule size, rule: %s" % (rule.raw_rule))
+                echo("skip calculate StringArrayRule size, rule: %s" % (rule.raw_rule))
                 word_size_list.append(0)
             else:
                 word_size_list.append(word_size)
             p = []
             for repeat_count in range(rule.min_repeat, rule.max_repeat + 1):
                 p.append(
-                    string_list_word_productor(rule.repeat_mode, rule.strlist,
-                                               repeat_count))
+                    string_array_word_productor(rule.repeat_mode, rule.strlist,
+                                                repeat_count))
             word_productors.append(itertools.chain(*p) if len(p) > 1 else p[0])
         else:
             if rule.dict_path in dict_caches:
@@ -438,11 +443,11 @@ def generate_words_productor(rules, dict_cache_limit, inencoding):
 
 
 def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
-                       seperator, inencoding, outencoding, output):
+                       separator, inencoding, outencoding, output):
     productor = generate_words_productor(rules, dict_cache_limit, inencoding)
     result[1] = int(productor.total_count())
     result[0] = 1
-    estimated_size = pretty_size(productor.total_size(sep=seperator))
+    estimated_size = pretty_size(productor.total_size(sep=separator))
     print(("estimated size: %s, generate dict...") % (estimated_size))
 
     if not os.path.exists(
@@ -455,10 +460,9 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     if real_part_size:
         first_output_file_name = _PART_DICT_NAME_FORMAT % (output, part_index)
 
-    word_seperator = os.linesep
-    if seperator:
-        word_seperator = _SPECIAL_SEPERATORS[
-            seperator] if seperator in _SPECIAL_SEPERATORS else seperator
+    word_separator = os.linesep
+    if separator:
+        word_separator = separator
 
     file_mode = 'ab' if append_mode else 'wb'
 
@@ -476,55 +480,52 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
             productor.productors) > 1 else productor.productors[0]
         f = open(first_output_file_name, file_mode)
 
-        # wrap f.write('content') as func will reduce the generation speed, so remain if...elif...
-        if sys.version_info > (
-                3,
-                0):  # there will be a minimum of 10% performance improvement.
-            if real_part_size:  # avoid condition code cost.
-                # complex rule, more join cost.
-                if len(productor.productors) > 1:
-                    for w in p:
-                        content = (''.join(w) + word_seperator).encode(outencoding)
-                        f.write(content)
-                        progress += 1
-                        line_length = len(content)
-                        curr_size += line_length
-                        if curr_size > real_part_size:
-                            curr_size = line_length
-                            f.close()
-                            part_index += 1
-                            f = open(
-                                _PART_DICT_NAME_FORMAT % (output, part_index),
-                                file_mode)
-                else:
-                    for w in p:
-                        content = (w + word_seperator).encode(outencoding)
-                        f.write(content)
-                        progress += 1
-                        line_length = len(content)
-                        curr_size += line_length
-                        if curr_size > real_part_size:
-                            curr_size = line_length
-                            f.close()
-                            part_index += 1
-                            f = open(
-                                _PART_DICT_NAME_FORMAT % (output, part_index),
-                                file_mode)
+        if sys.version_info < (3, 0):
+            echo('python 2.x not supported')
+            return
+        if real_part_size:  # avoid condition code cost time.
+            # complex rule, more join cost.
+            if len(productor.productors) > 1:
+                for w in p:
+                    content = (''.join(w) + word_separator).encode(outencoding)
+                    f.write(content)
+                    progress += 1
+                    line_length = len(content)
+                    curr_size += line_length
+                    if curr_size > real_part_size:
+                        curr_size = line_length
+                        f.close()
+                        part_index += 1
+                        f = open(
+                            _PART_DICT_NAME_FORMAT % (output, part_index),
+                            file_mode)
             else:
-                # complex rule, more join cost.
-                if len(productor.productors) > 1:
-                    for w in p:
-                        f.write((''.join(w) + word_seperator).encode(outencoding))
-                        progress += 1
-                else:
-                    for w in p:
-                        f.write((w + word_seperator).encode(outencoding))
-                        progress += 1
+                for w in p:
+                    content = (w + word_separator).encode(outencoding)
+                    f.write(content)
+                    progress += 1
+                    line_length = len(content)
+                    curr_size += line_length
+                    if curr_size > real_part_size:
+                        curr_size = line_length
+                        f.close()
+                        part_index += 1
+                        f = open(
+                            _PART_DICT_NAME_FORMAT % (output, part_index),
+                            file_mode)
         else:
-            print('python 2.x not supported')
+            # complex rule, more join cost.
+            if len(productor.productors) > 1:
+                for w in p:
+                    f.write((''.join(w) + word_separator).encode(outencoding))
+                    progress += 1
+            else:
+                for w in p:
+                    f.write((w + word_separator).encode(outencoding))
+                    progress += 1
     finally:
         f.close()
-    result[3] = 1
+        result[3] = 1
 
 
 @click.command()
@@ -548,8 +549,8 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     show_default=True,
     default="",
     help=
-    "define word format, $0 means refer first file in dictlist option, some built-in charsets:\n\n"
-    + format_dict(_BUILT_IN_CHARSET)
+    "define word format, $0 means refer first file in dictlist option, some built-in char_arrays:\n\n"
+    + format_dict(_BUILT_IN_CHAR_ARRAY)
     + "\n\nexample: [?dA]{1:2}$0\nview github *Examples* section for more information.")
 @click.option(
     "--dict_cache",
@@ -570,7 +571,7 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     show_default=True,
     default='?',
     type=click.STRING,
-    help="whether the character is allowd to repeat:\n\n"
+    help="global repeat mode, the value is used when the repeat mode of rule is not specified:\n\n"
     + format_dict(_REPEAT_MODES))
 @click.option(
     "--part_size",
@@ -589,14 +590,13 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     show_default=True,
     help="whether append content to OUTPUT or not.")
 @click.option(
-    "--seperator",
+    "--separator",
     "-s",
     type=click.STRING,
     default='',
     show_default=True,
     help=
-    "word seperator, by default, Mac/Linudx: \n, Windows: \r\n"
-    + format_dict(_SPECIAL_SEPERATORS_NAME))
+    "word separator for output file, by default, Mac/Linudx: \n, Windows: \r\n")
 @click.option(
     "--debug_mode",
     type=click.INT,
@@ -617,11 +617,11 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     help="output file encoding.")
 @click.argument("output", type=click.Path())
 def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size,
-        append_mode, seperator, debug_mode, inencoding, outencoding, output):
+        append_mode, separator, debug_mode, inencoding, outencoding, output):
     if mode in _MODES:
         generate_dict_by_rule(mode, dictlist, rule, dict_cache,
                               global_repeat_mode, part_size, append_mode,
-                              seperator, debug_mode, inencoding, outencoding, output)
+                              separator, debug_mode, inencoding, outencoding, output)
     else:
         echo(
             "unknown mode, try use 'ttpassgen --help' for get more information."
@@ -631,7 +631,6 @@ def cli(mode, dictlist, rule, dict_cache, global_repeat_mode, part_size,
 if __name__ == "__main__":
     freeze_support()
     cli()
-    # cli.main(['-d', 'tests/in.dict', '-r', '[123]{2:3}', '--debug_mode', '1', 'out.dict'])
-    # cli.main(['-d', 'tests/in.dict', '-r', 'aa$(123,456,789){2:3:?}bb[ab]$0cc', 'out.dict'])
-    # cli.main(['-d', 'tests/in.dict', '-r', 'aa$(123,456){1:2:?}bb[xy]cc', 'out.dict'])
-    # cli.main(['-d', 'tests/in.dict', '-r', '[123]{2:3}', 'out.dict'])
+
+    # for debug
+    # cli.main(['-d', 'tests/in.dict', '-r', '[123]{2:3}xy', '--debug_mode', '1', 'out.txt'])

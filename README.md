@@ -243,9 +243,7 @@ age$(10,20,30){1:1:?}
 Choose a number from (10,20,30), then append it after 'age', end with 'x' or 'y':
 
 ```
-
 age$(10,20,30){1:1:?}[ab]
-
 ```
 
 ## DictRule
@@ -255,9 +253,7 @@ Read string from file(txt file). The dictionary file path can be specified by th
 Rule format:
 
 ```
-
 $index
-
 ```
 
 DictRule not support repeat mode.

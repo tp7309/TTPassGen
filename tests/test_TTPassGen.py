@@ -8,6 +8,9 @@ import shutil
 
 tests_path = os.path.dirname(os.path.abspath(__file__))
 
+lc = None
+go = None
+
 
 # tests/in.dict generate by: ttpassgen -r "[123]{3}" in.dict
 class Test_ttpassgen(unittest.TestCase):

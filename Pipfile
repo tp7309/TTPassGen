@@ -10,7 +10,7 @@ autopep8 = "*"
 
 [packages]
 tqdm = ">=4.23"
-click = "==6.7"
+click = ">=6.7"
 
 [requires]
 python_version = "3.7"

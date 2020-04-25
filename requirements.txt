@@ -1,2 +1,2 @@
 tqdm>=4.23
-click==6.7
+click>=6.7

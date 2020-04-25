@@ -244,7 +244,7 @@ Choose a number from (10,20,30), then append it after 'age', end with 'x' or 'y'
 
 ```
 
-age\$(10,20,30){1:1:?}[ab]
+age$(10,20,30){1:1:?}[ab]
 
 ```
 
@@ -256,7 +256,7 @@ Rule format:
 
 ```
 
-\$index
+$index
 
 ```
 
@@ -280,13 +280,13 @@ content of `in2.txt`:
 12
 34
 
-````
+```
 
 When dictlist option defined as `in.dict,in2.dict` and _seperator_ is one space, run following command：
 
 ```bash
 ttpassgen --dictlist "in.txt,in2.txt" --rule "$0[_]?$1" -s " " out.txt
-````
+```
 
 Output:
 

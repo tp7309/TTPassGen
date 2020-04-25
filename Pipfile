@@ -11,6 +11,7 @@ autopep8 = "*"
 [packages]
 tqdm = ">=4.23"
 click = ">=6.7"
+pyinstaller = "*"
 
 [requires]
 python_version = "3.7"

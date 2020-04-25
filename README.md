@@ -238,6 +238,7 @@ Choose a number from (10,20,30), then append it after 'age':
 
 ```
 age$(10,20,30){1:1:?}
+```
 
 Choose a number from (10,20,30), then append it after 'age', end with 'x' or 'y':
 

@@ -28,7 +28,7 @@ install_requires = ['click', 'tqdm']
 
 setup(
     name='ttpassgen',
-    version='1.1.0',
+    version='1.1.1',
     description=description,
     author='tp7309',
     author_email='yiyou7309@gmail.com',
@@ -51,9 +51,6 @@ setup(
     ),
 )
 
-# md2rst
-# pandoc --from=markdown --to=rst --output=README.rst README.md
-
 # upload
 # python setup.py bdist_wheel
 # twine upload dist/*
@@ -67,5 +64,3 @@ setup(
 # view coverage report
 # coverage html -d coverage_html
 
-# format code style
-# yapf -i -r .

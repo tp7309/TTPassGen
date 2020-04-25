@@ -240,7 +240,7 @@ class Test_ttpassgen(unittest.TestCase):
             os.remove('testout.dict')
         self.assertEquals(go('$(123,456){3:2:?}'), 0)
 
-    def test_max_length_greater_than_char_array_size(self):
+    def test_max_length_greater_than_string_array_size(self):
         if os.path.exists('testout.dict'):
             os.remove('testout.dict')
         self.assertEquals(go('$(123,456){3:4:?}'), 0)

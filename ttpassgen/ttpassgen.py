@@ -185,7 +185,7 @@ def get_dict_rule_data_size(rule, inencoding):
             sum_lines += chunk.count('\n')
             chunk = read_func(buffer_size)
 
-    # read file last byte for check whether file content end with line separator.
+    # read file last byte for check whether file content end with line separator or not.
     with open(rule.dict_path, 'rb', encoding=inencoding) as f:
         f.seek(-1, os.SEEK_END)
         last_byte = f.read()

@@ -9,7 +9,7 @@ import shutil
 tests_path = os.path.dirname(os.path.abspath(__file__))
 
 
-# tests/in.dict generate by: ttpassgen -r [123]{3} in.dict
+# tests/in.dict generate by: ttpassgen -r "[123]{3}" in.dict
 class Test_ttpassgen(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -24,13 +24,8 @@ class Test_ttpassgen(unittest.TestCase):
         global lc
         lc = lc_func
 
-        shutil.copy('in.dict', 'in3.dict')
-        # in in3.dict, file content not end with '\n'.
-        with open('in3.dict', 'a') as f:
-            f.write('end')
-
         def go_func(rule,
-                    dictlist=os.path.join(tests_path, 'in.dict,in3.dict'),
+                    dictlist=os.path.join(tests_path, 'in.dict'),
                     mode=0,
                     partSize=0,
                     diskCache=500,
@@ -53,8 +48,8 @@ class Test_ttpassgen(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         super(Test_ttpassgen, cls).tearDownClass()
-        if os.path.exists('in3.dict'):
-            os.remove('in3.dict')
+        if os.path.exists(os.path.join(tests_path, 'in3.dict')):
+            os.remove(os.path.join(tests_path, 'in3.dict'))
         if os.path.exists('testout.dict'):
             os.remove('testout.dict')
         if os.path.exists('testout.dict.1'):
@@ -228,7 +223,14 @@ class Test_ttpassgen(unittest.TestCase):
         self.assertEquals(go('$0[A]?xy'), 12)
 
     def test_dict_content_not_end_with_line_separator(self):
-        self.assertEquals(go('$1eng'), 7)
+        shutil.copy(os.path.join(tests_path, 'in.dict'), 'in3.dict')
+        dictlist = "%s,in3.dict" % (os.path.join(tests_path, 'in.dict'))
+        # in in3.dict, file content not end with '\n'.
+        with open('in3.dict', 'a') as f:
+            f.write('end')
+        self.assertEquals(go('$1eng', dictlist=dictlist), 7)
+        if os.path.exists('in3.dict'):
+            os.remove('in3.dict')
 
 
 if __name__ == '__main__':

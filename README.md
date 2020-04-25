@@ -267,19 +267,15 @@ DictRule not support repeat mode.
 content of `in.txt`:
 
 ```
-
 ab
 cd
-
 ```
 
 content of `in2.txt`:
 
 ```
-
 12
 34
-
 ```
 
 When dictlist option defined as `in.dict,in2.dict` and _seperator_ is one space, run following command：

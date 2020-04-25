@@ -31,12 +31,13 @@ class Test_ttpassgen(unittest.TestCase):
                     diskCache=500,
                     repeatMode='?',
                     separator=None,
-                    debugMode=1):
+                    debugMode=1,
+                    output='testout.dict'):
             try:
                 ttpassgen.cli.main([
                     '-m', mode, '-d', dictlist, '-r', rule, '-g', repeatMode,
                     '-c', diskCache, '-p', partSize, '-s', separator,
-                    '--debug_mode', debugMode, 'testout.dict'
+                    '--debug_mode', debugMode, output
                 ])
             except (SystemExit):
                 pass
@@ -84,35 +85,46 @@ class Test_ttpassgen(unittest.TestCase):
             os.remove('testout.dict')
         self.assertEquals(go('$0', dictlist='not_exist.dict'), 0)
 
+        if os.path.exists('testout.dict'):
+            os.remove('testout.dict')
+        self.assertEquals(go(''), 0)
+
     def test_not_exist_output_file(self):
         if os.path.exists('testout.dict'):
             os.remove('testout.dict')
         self.assertEquals(go('$0'), 6)
 
+        # check not exist directory.
+        if os.path.exists('tempDir'):
+            shutil.rmtree('tempDir')
+        self.assertEquals(go('$0', output='tempDir/testout.dict'), 6)
+        if os.path.exists('tempDir'):
+            shutil.rmtree('tempDir')
+
     def test_dict_copy_rule(self):
         self.assertEquals(go('$0'), 6)
 
-    def test_charset_rule_no_range(self):
+    def test_char_array_rule_no_range(self):
         self.assertEquals(go('[abc]'), 3)
 
-    def test_charset_rule(self):
+    def test_char_array_rule(self):
         self.assertEquals(go('[abc]?'), 4)
 
-    def test_charset_rule_with_range(self):
+    def test_char_array_rule_with_range(self):
         self.assertEquals(go('[abc]{2:3}'), 12)
 
-    def test_charset_rule_with_global_repeat_mode(self):
+    def test_char_array_rule_with_global_repeat_mode(self):
         self.assertEquals(go('[abc]{2:3}', repeatMode='*'), 36)
 
-    def test_mask_charset_rule(self):
+    def test_mask_char_array_rule(self):
         self.assertEquals(go('[?d]?'), 11)
 
-    def test_mask_charset_rule_with_range(self):
+    def test_mask_char_array_rule_with_range(self):
         self.assertEquals(go('[a?dA]{1:2}'), 144)
         self.assertEquals(go('[?d]{2:2}'), 90)
         self.assertEquals(go('[?d]{2}'), 90)
 
-    def test_dict_mark_charset_rule(self):
+    def test_dict_mark_char_array_rule(self):
         self.assertEquals(go('$0[abc]?'), 24)
 
     def test_word_separator(self):
@@ -120,7 +132,7 @@ class Test_ttpassgen(unittest.TestCase):
         self.assertEquals(
             go('$0[abc]?', separator='-------------------------\n'), 24)
 
-    def test_multi_dict_mark_charset_rule(self):
+    def test_multi_dict_mark_char_array_rule(self):
         dict_in = os.path.join(tests_path, 'in.dict')
         dict_in2 = os.path.join(tests_path, 'in2.dict')
         with open(dict_in2, 'wb') as f:
@@ -195,12 +207,12 @@ class Test_ttpassgen(unittest.TestCase):
             os.remove('testout.dict.3')
         self.assertEquals(total_line, 375076)
 
-    def test_wrong_length_in_rule(self):
+    def test_wrong_length_in_char_array(self):
         if os.path.exists('testout.dict'):
             os.remove('testout.dict')
         self.assertEquals(go('[789]{0:-3}'), 0)
 
-    def test_max_length_greater_than_charset_size(self):
+    def test_max_length_greater_than_char_array_size(self):
         if os.path.exists('testout.dict'):
             os.remove('testout.dict')
         self.assertEquals(go('[789]{2:5}'), 0)
@@ -208,19 +220,30 @@ class Test_ttpassgen(unittest.TestCase):
     def test_only_normal_string(self):
         self.assertEquals(go('abc'), 1)
 
-    def test_string_list(self):
+    def test_string_array(self):
         self.assertEquals(go('$(123,xx,789){2:2:?}'), 6)
+        self.assertEquals(go('$(123,xx,789){2:2:*}'), 9)
 
-    def normal_string_with_charset(self):
+    def normal_string_with_char_array(self):
         self.assertEquals(go('abc[123]{1:2}'), 9)
         self.assertEquals(go('[123]{1:2}abc'), 9)
         self.assertEquals(go('[123]{1:2}abc[45]'), 18)
 
-    def test_charset_with_string_list(self):
+    def test_char_array_with_string_array(self):
         self.assertEquals(go('aa$(123,456){1:2:?}bb[xy]cc'), 8)
 
-    def test_dict_with_string_list(self):
+    def test_dict_with_string_array(self):
         self.assertEquals(go('$0[A]?xy'), 12)
+
+    def test_wrong_length_in_string_array(self):
+        if os.path.exists('testout.dict'):
+            os.remove('testout.dict')
+        self.assertEquals(go('$(123,456){3:2:?}'), 0)
+
+    def test_max_length_greater_than_char_array_size(self):
+        if os.path.exists('testout.dict'):
+            os.remove('testout.dict')
+        self.assertEquals(go('$(123,456){3:4:?}'), 0)
 
     def test_dict_content_not_end_with_line_separator(self):
         shutil.copy(os.path.join(tests_path, 'in.dict'), 'in3.dict')

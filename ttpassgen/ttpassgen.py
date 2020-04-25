@@ -60,11 +60,11 @@ class DictRule(object):
 # $(string1){min_repeat:max_repeat:repeat_mode}
 # $(string1,string2){min_repeat:max_repeat:repeat_mode}
 class StringArrayRule(object):
-    def __init__(self, raw_rule, min_repeat, max_repeat, strlist, repeat_mode):
+    def __init__(self, raw_rule, min_repeat, max_repeat, string_array, repeat_mode):
         self.raw_rule = raw_rule
         self.min_repeat = min_repeat
         self.max_repeat = max_repeat
-        self.strlist = strlist
+        self.string_array = string_array
         self.repeat_mode = repeat_mode
 # Rule class end
 
@@ -149,7 +149,7 @@ def get_char_array_rule_data_size(rule):
 def get_string_array_rule_data_size(rule):
     size = count = float(0)
     # normal string
-    if rule.min_repeat == 1 and rule.max_repeat == 1 and len(rule.strlist) == 1:
+    if rule.min_repeat == 1 and rule.max_repeat == 1 and len(rule.string_array) == 1:
         count += 1
         size += len(rule.raw_rule)
         return count, size
@@ -161,14 +161,14 @@ def get_string_array_rule_data_size(rule):
         for repeat_count in range(rule.min_repeat, rule.max_repeat + 1):
             sub_sum = 1
             for i in range(
-                    len(rule.strlist) - repeat_count + 1,
-                    len(rule.strlist) + 1):
+                    len(rule.string_array) - repeat_count + 1,
+                    len(rule.string_array) + 1):
                 sub_sum *= i
             count += sub_sum
     else:
         # allow element repeat in one word
         for repeat_count in range(rule.min_repeat, rule.max_repeat + 1):
-            count += math.pow(len(rule.strlist), repeat_count)
+            count += math.pow(len(rule.string_array), repeat_count)
     return count, size
 
 
@@ -215,11 +215,11 @@ def char_array_word_productor(repeat_mode, expanded_char_array, length):
 
 
 @char_array_word_productor_wrapper
-def string_array_word_productor(repeat_mode, strlist, repeat_count):
+def string_array_word_productor(repeat_mode, string_array, repeat_count):
     if repeat_mode == '?':
-        return itertools.permutations(strlist, r=repeat_count)
+        return itertools.permutations(string_array, r=repeat_count)
     else:
-        return itertools.product(strlist, repeat=repeat_count)
+        return itertools.product(string_array, repeat=repeat_count)
 
 
 def large_dict_word_productor(rule, inencoding):
@@ -303,8 +303,8 @@ def extract_rules(dictList, rule, global_repeat_mode):
     dict_count = len(splited_dict)
     re_char_array = r"(\[([^\]]+?)\](\?|(\{-?\d+:-?\d+(:[\?\*])?\})|(\{-?\d+(:[\?\*])?\}))?)"
     re_dict = r"(\$(\d{1,%s}))" % (dict_count if dict_count > 0 else 1)
-    re_strlist = r"(\$\((\S+?)\)(\{\d+:\d+(:[\?\*])?\}))"
-    re_rule = r"%s|%s|%s" % (re_char_array, re_dict, re_strlist)
+    re_string_array = r"(\$\((\S+?)\)(\{\d+:\d+(:[\?\*])?\}))"
+    re_rule = r"%s|%s|%s" % (re_char_array, re_dict, re_string_array)
     rules = []
     matches_length = 0
     matches = re.findall(re_rule, rule)
@@ -317,18 +317,21 @@ def extract_rules(dictList, rule, global_repeat_mode):
                 dict_index = int(match[1])
                 dict_rule = DictRule(match[0], dict_index, splited_dict[dict_index])
                 rules.append(dict_rule)
-            elif re.match(re_strlist, match[0]):
-                strlist = match[1].split(',')
+            elif re.match(re_string_array, match[0]):
+                string_array = match[1].split(',')
                 len_info = match[2][1:-1].split(':')
                 min_repeat = int(len_info[0])
                 max_repeat = int(len_info[1])
                 repeat_mode = len_info[2]
 
-                if max_repeat > len(strlist):
-                    echo("rule '%s' is invalid, max_repeat(%d) cannot be greater than the size of string list(%d)!"
-                         % (match[0], max_repeat, len(strlist)))
+                if min_repeat < 0 or max_repeat < 0 or min_repeat > max_repeat:
+                    echo("invalid min_repeat: %d or max_repeat: %d, rule: %s" % (min_repeat, max_repeat, match[0]))
                     return None
-                string_array_rule = StringArrayRule(match[0], min_repeat, max_repeat, strlist, repeat_mode)
+                if max_repeat > len(string_array):
+                    echo("rule '%s' is invalid, max_repeat(%d) cannot be greater than the size of string list(%d)!"
+                         % (match[0], max_repeat, len(string_array)))
+                    return None
+                string_array_rule = StringArrayRule(match[0], min_repeat, max_repeat, string_array, repeat_mode)
                 rules.append(string_array_rule)
             else:
                 min_length = 0
@@ -421,7 +424,7 @@ def generate_words_productor(rules, dict_cache_limit, inencoding):
             p = []
             for repeat_count in range(rule.min_repeat, rule.max_repeat + 1):
                 p.append(
-                    string_array_word_productor(rule.repeat_mode, rule.strlist,
+                    string_array_word_productor(rule.repeat_mode, rule.string_array,
                                                 repeat_count))
             word_productors.append(itertools.chain(*p) if len(p) > 1 else p[0])
         else:

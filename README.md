@@ -134,7 +134,7 @@ Built-in char arrays:
 ?q = ]
 ```
 
-For example, ** [?d] ** means to select char from number list.
+For example, **[?d]** means to select char from number list.
 
 ### RepeatFormat
 
@@ -144,11 +144,11 @@ For example, ** [?d] ** means to select char from number list.
 
 For `CharArrayRule`, repeat time is the length of the word to be generated.
 
-- min_repeat
+- `min_repeat`
   minimum repeat times
-- max_repeat
+- `max_repeat`
   maximum repeat times
-- repeat_mode
+- `repeat_mode`
   char repeat mode
 
 Define rule similar regex's style:
@@ -217,8 +217,11 @@ Generate a word based on the defined string array and repeat information.
 Rule format：
 
 - `$(string1,string2){min_repeat:max_repeat:repeat_mode}`
-  String array, echo string is splited by comma, no spaces.
+
+  String array, each string is splited by comma, no spaces.
+
 - `string`
+
   Normal string, same as `$(string){1:1:?}`.
 
 Like `CharArrayRule`, but `StringArrayRule` does not support _Short rule format_.
@@ -231,10 +234,17 @@ Generate an 8-digit numeric password, end with `abc`:
 [?d]{8:8:*}abc
 ```
 
-Choose a number from (10,20,30), then add it after 'age':
+Choose a number from (10,20,30), then append it after 'age':
 
 ```
 age$(10,20,30){1:1:?}
+
+Choose a number from (10,20,30), then append it after 'age', end with 'x' or 'y':
+
+```
+
+age\$(10,20,30){1:1:?}[ab]
+
 ```
 
 ## DictRule
@@ -244,7 +254,9 @@ Read string from file(txt file). The dictionary file path can be specified by th
 Rule format:
 
 ```
-$index
+
+\$index
+
 ```
 
 DictRule not support repeat mode.
@@ -254,22 +266,26 @@ DictRule not support repeat mode.
 content of `in.txt`:
 
 ```
+
 ab
 cd
+
 ```
 
 content of `in2.txt`:
 
 ```
+
 12
 34
-```
 
-For example, when dictlist option defined as `in.dict,in2.dict` and _seperator_ is one space, run following command：
+````
+
+When dictlist option defined as `in.dict,in2.dict` and _seperator_ is one space, run following command：
 
 ```bash
 ttpassgen --dictlist "in.txt,in2.txt" --rule "$0[_]?$1" -s " " out.txt
-```
+````
 
 Output:
 

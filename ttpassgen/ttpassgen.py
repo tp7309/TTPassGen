@@ -324,7 +324,8 @@ def extract_rules(dictList, rule, global_repeat_mode):
                 max_repeat = int(len_info[1])
                 repeat_mode = len_info[2]
 
-                if min_repeat < 0 or max_repeat < 0 or min_repeat > max_repeat:
+                if min_repeat < 0 or max_repeat < 0 or min_repeat > max_repeat \
+                        or (min_repeat == 0 and max_repeat == 0):
                     echo("invalid min_repeat: %d or max_repeat: %d, rule: %s" % (min_repeat, max_repeat, match[0]))
                     return None
                 if max_repeat > len(string_array):
@@ -353,10 +354,11 @@ def extract_rules(dictList, rule, global_repeat_mode):
                     elif match[2][0] == '{':
                         min_length = max_length = int(len_info[0])  # []{n}
                     else:
-                        repeat_mode = len_info[0]  # ?
+                        repeat_mode = len_info[0]  # '?'、'*'
                 else:
                     min_length = max_length = 1
-                if min_length < 0 or max_length < 0 or min_length > max_length:
+                if min_length < 0 or max_length < 0 or min_length > max_length \
+                        or (min_length == 0 and max_length == 0):
                     echo("invalid min_repeat: %d or max_repeat: %d, rule: %s" % (min_length, max_length, match[0]))
                     return None
                 elif max_length > len(expanded_char_array):
@@ -450,7 +452,12 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     productor = generate_words_productor(rules, dict_cache_limit, inencoding)
     result[1] = int(productor.total_count())
     result[0] = 1
-    estimated_size = pretty_size(productor.total_size(sep=separator))
+
+    word_separator = os.linesep
+    if separator:
+        word_separator = separator
+
+    estimated_size = pretty_size(productor.total_size(sep=word_separator))
     print(("estimated size: %s, generate dict...") % (estimated_size))
 
     if not os.path.exists(
@@ -463,12 +470,7 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     if real_part_size:
         first_output_file_name = _PART_DICT_NAME_FORMAT % (output, part_index)
 
-    word_separator = os.linesep
-    if separator:
-        word_separator = separator
-
     file_mode = 'ab' if append_mode else 'wb'
-
     progress = 0
 
     def progress_monitor():
@@ -635,5 +637,5 @@ if __name__ == "__main__":
     freeze_support()
 
     # for debug
-    # cli.main(['-d', 'tests/in.dict', '-r', '[123]{2:3}', '--debug_mode', '1', 'out.txt'])
+    # cli.main(['-d', 'tests/in.dict', '-r', '[?d]{2}', '--debug_mode', '1', 'out.txt'])
     cli()

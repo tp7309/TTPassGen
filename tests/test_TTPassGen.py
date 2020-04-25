@@ -92,6 +92,10 @@ class Test_ttpassgen(unittest.TestCase):
             os.remove('testout.dict')
         self.assertEquals(go(''), 0)
 
+        if os.path.exists('testout.dict'):
+            os.remove('testout.dict')
+        self.assertEquals(go('[?d]{0}'), 0)
+
     def test_not_exist_output_file(self):
         if os.path.exists('testout.dict'):
             os.remove('testout.dict')
@@ -131,7 +135,7 @@ class Test_ttpassgen(unittest.TestCase):
         self.assertEquals(go('$0[abc]?'), 24)
 
     def test_word_separator(self):
-        self.assertEquals(go('$0[abc]?', separator='&#160;'), 1)
+        self.assertEquals(go('$0[abc]?', separator=' '), 1)
         self.assertEquals(
             go('$0[abc]?', separator='-------------------------\n'), 24)
 
@@ -145,6 +149,10 @@ class Test_ttpassgen(unittest.TestCase):
             go('$1$0[abc]?', dictlist="%s,%s" % (dict_in, dict_in2)), 48)
         if os.path.exists(dict_in2):
             os.remove(dict_in2)
+
+    def test_char_array_size(self):
+        go('[?d]{2}')
+        self.assertTrue(os.path.getsize('testout.dict') == 270)
 
     def test_part_size_with_complex_rule(self):
         if os.path.exists('testout.dict.1'):

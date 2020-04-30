@@ -92,7 +92,7 @@ Options:
 
 # 规则格式
 
-**TTPassgen** 目前支持三种密码生成规则，以`--rule`选项指定，三种规则可以同时使用。
+**TTPassGen** 目前支持三种密码生成规则，以`--rule`选项指定，三种规则可以同时使用。
 
 ## CharArrayRule 字符数组规则
 

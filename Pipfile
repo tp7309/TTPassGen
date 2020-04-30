@@ -7,11 +7,11 @@ verify_ssl = true
 flake8 = "*"
 nose2 = "*"
 autopep8 = "*"
+pyinstaller = "*"
 
 [packages]
 tqdm = ">=4.23"
 click = ">=6.7"
-pyinstaller = "*"
 
 [requires]
 python_version = "3.7"

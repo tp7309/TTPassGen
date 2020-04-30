@@ -38,7 +38,7 @@ Python 3.5 or later.
 
 > Switch to the project's `ttpassgen` directory if you want use ttpassgen by downloaded source code.
 
-Example: Generate word list output to `out.txt`, the word format is prefix three digits, only allow 1、2、3, appear 2 or 3 times, end with `xyz`.
+Example: Generate word list and output to `out.txt`, the word format is prefix three digits, only allow 1、2、3, appear 2 or 3 times, end with `xyz`.
 
 ```
 ttpassgen -r "[123]{2:3}xyz" out.txt
@@ -97,7 +97,7 @@ The output file uses `utf-8` encoding by default, it is recommended to use _Note
 
 # RuleTypes
 
-**TTPassgen** supports three rule type, which can specified with the `--rule` option, you can use these rules at the same time.
+**TTPassGen** supports three rule type, which can specified with the `--rule` option, you can use these rules at the same time.
 
 ## CharArrayRule
 

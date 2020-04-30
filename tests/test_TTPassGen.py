@@ -152,7 +152,11 @@ class Test_ttpassgen(unittest.TestCase):
 
     def test_char_array_size(self):
         go('[?d]{2}')
-        self.assertTrue(os.path.getsize('testout.dict') == 270)
+        if os.name == 'nt':
+            # default line separator is '\r\n' on windows.
+            self.assertTrue(os.path.getsize('testout.dict') == 360)
+        else:
+            self.assertTrue(os.path.getsize('testout.dict') == 270)
 
     def test_part_size_with_complex_rule(self):
         if os.path.exists('testout.dict.1'):
@@ -162,7 +166,7 @@ class Test_ttpassgen(unittest.TestCase):
         if os.path.exists('testout.dict.3'):
             os.remove('testout.dict.3')
 
-        go('[?d]{1:4:*}$0[?q]$[0123]', partSize=1, debugMode=1)
+        go('[?d]{1:4:*}$0[?q]$[123]', partSize=1, debugMode=1)
         total_line = 0
         with open('testout.dict.1', 'r') as f:
             total_line += len(f.readlines())
@@ -174,13 +178,16 @@ class Test_ttpassgen(unittest.TestCase):
         # actual value: 1024 * 1, why 24 difference? I like do it>_>
         self.assertTrue(
             1000 <= os.path.getsize('testout.dict.1') / 1024 <= 1048)
+        shutil.copy('testout.dict.1', 'test1')
+        shutil.copy('testout.dict.2', 'test2')
+        shutil.copy('testout.dict.3', 'test3')
         if os.path.exists('testout.dict.1'):
             os.remove('testout.dict.1')
         if os.path.exists('testout.dict.2'):
             os.remove('testout.dict.2')
         if os.path.exists('testout.dict.3'):
             os.remove('testout.dict.3')
-        self.assertEquals(total_line, 266640)
+        self.assertEquals(total_line, 199980)
 
     def test_multiprocessing_complex_rule(self):
         self.assertEquals(go('[789]{0:3:*}$0[?q]$0', debugMode=0), 1440)

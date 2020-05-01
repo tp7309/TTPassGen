@@ -95,12 +95,20 @@ class WordProductor(object):
         return total
 
 
+# Get file display size.
 def pretty_size(size_bytes):
     if size_bytes == 0:
         return "0 Bytes"
+    # Different operating systems have differences when display file size.
+    # on Windows, 1Kb=1024B, actual means 1KiB=1024B.
+    # on Mac/Linux, 1KB=1024B.
+    # see more: https://en.wikipedia.org/wiki/Gigabyte#Consumer_confusion
+    base = 1000
+    if os.name == 'nt':
+        base = 1024
     size_name = ("Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
-    i = int(math.floor(math.log(size_bytes, 1024)))
-    p = math.pow(1024, i)
+    i = int(math.floor(math.log(size_bytes, base)))
+    p = math.pow(base, i)
     s = round(size_bytes / p, 2)
     return "%s %s" % (s, size_name[i])
 
@@ -458,7 +466,7 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
         word_separator = separator
 
     estimated_size = pretty_size(productor.total_size(sep=word_separator))
-    print(("estimated size: %s, generate dict...") % (estimated_size))
+    print(("estimated display size: %s, generate dict...") % (estimated_size))
 
     if not os.path.exists(
             os.path.abspath(os.path.join(output, os.path.pardir))):
@@ -637,5 +645,5 @@ if __name__ == "__main__":
     freeze_support()
 
     # for debug
-    # cli.main(['-d', 'tests/in.dict', '-r', '[?d]{2}', '--debug_mode', '1', 'out.txt'])
+    # cli.main(['-d', 'tests/in.dict', '-r', '[?d]{7}', '--debug_mode', '1', 'out.txt'])
     cli()

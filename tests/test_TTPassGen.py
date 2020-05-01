@@ -158,6 +158,14 @@ class Test_ttpassgen(unittest.TestCase):
         else:
             self.assertTrue(os.path.getsize('testout.dict') == 270)
 
+    def test_char_array_estimated_size(self):
+        go('[?d]{7}')
+        size = os.path.getsize('testout.dict')
+        if os.name == 'nt':
+            self.assertEquals(ttpassgen.pretty_size(size), "4.61 MB")
+        else:
+            self.assertEquals(ttpassgen.pretty_size(size), "4.84 MB")
+
     def test_part_size_with_complex_rule(self):
         if os.path.exists('testout.dict.1'):
             os.remove('testout.dict.1')
@@ -178,9 +186,6 @@ class Test_ttpassgen(unittest.TestCase):
         # actual value: 1024 * 1, why 24 difference? I like do it>_>
         self.assertTrue(
             1000 <= os.path.getsize('testout.dict.1') / 1024 <= 1048)
-        shutil.copy('testout.dict.1', 'test1')
-        shutil.copy('testout.dict.2', 'test2')
-        shutil.copy('testout.dict.3', 'test3')
         if os.path.exists('testout.dict.1'):
             os.remove('testout.dict.1')
         if os.path.exists('testout.dict.2'):

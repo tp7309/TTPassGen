@@ -140,7 +140,7 @@ For example, **[?d]** means to select char from number list.
 {min_repeat:max_repeat:repeat_mode}
 ```
 
-For `CharArrayRule`, repeat time is the length of the word to be generated.
+For `CharArrayRule`, repeat times is the length of the word to be generated.
 
 - `min_repeat`
   minimum repeat times
@@ -254,7 +254,7 @@ Rule format:
 $index
 ```
 
-DictRule not support repeat mode.
+`DictRule` not support repeat mode.
 
 ### Example
 

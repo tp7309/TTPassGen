@@ -159,7 +159,7 @@ class Test_ttpassgen(unittest.TestCase):
             self.assertTrue(os.path.getsize('testout.dict') == 270)
 
     def test_char_array_estimated_size(self):
-        go('[?d]{7}')
+        go('[?d]{7}', separator='\n')
         size = os.path.getsize('testout.dict')
         if os.name == 'nt':
             self.assertEquals(ttpassgen.pretty_size(size), "4.61 MB")

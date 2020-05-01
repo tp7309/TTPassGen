@@ -104,8 +104,7 @@ def pretty_size(size_bytes):
     # on Mac/Linux, 1KB=1024B.
     # see more: https://en.wikipedia.org/wiki/Gigabyte#Consumer_confusion
     base = 1000
-    if os.name == 'nt':
-        base = 1024
+    base = 1024 if os.name == 'nt' else 1024
     size_name = ("Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
     i = int(math.floor(math.log(size_bytes, base)))
     p = math.pow(base, i)
@@ -187,8 +186,7 @@ def get_dict_rule_data_size(rule, inencoding):
         buffer_size = 1024 * 4
         read_func = f.read  # loop optimization
         chunk = read_func(buffer_size)
-        if '\r\n' in chunk:
-            sepLen = 2
+        sepLen = 2 if '\r\n' in chunk else sepLen
         while chunk:
             sum_lines += chunk.count('\n')
             chunk = read_func(buffer_size)
@@ -287,10 +285,8 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
     # wait product_rule_words() ready
     while not result[0]:
         time.sleep(0.05)
-    if os.name == 'nt':
-        pbar = tqdm(total=result[1], unit=' word', ascii=True)
-    else:
-        pbar = tqdm(total=result[1], unit=' word')
+    use_ascii = os.name == 'nt'
+    pbar = tqdm(total=result[1], unit=' word', ascii=use_ascii)
     progress = 0
     while progress < pbar.total:
         time.sleep(0.1)

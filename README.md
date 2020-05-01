@@ -12,7 +12,7 @@ README i18n: [中文说明](https://github.com/tp7309/TTPassGen/blob/master/READ
 # Features
 
 - generate password use combination、permulation、conditional rules and so on.
-- support all characters or words(from wordlist option) that can make up a password, some built-in charset has been provided, such as alphabetical list and numeric list.
+- support all characters or words(from wordlist option) that can make up a password, some built-in charset has been provided, such as lowercase letter list and numeric list.
 - you can specify the order and frequency of each element in the word.
 - simple rule format, and easy to use, rule could be defined similar regex's style.
 - time-consuming estimates, output size estimates, and real-time progress reports.
@@ -28,17 +28,15 @@ README i18n: [中文说明](https://github.com/tp7309/TTPassGen/blob/master/READ
 pip install ttpassgen
 ```
 
-if you are using the windows operating system, you could just use the [release version](https://github.com/tp7309/TTPassGen/releases).
-
 # Requirements
 
-Python 3.5 or later.
+Python 3.5 or later. if you are using windows, you could just use the [release version](https://github.com/tp7309/TTPassGen/releases), no need python environment.
 
 # Quick Start
 
 > Switch to the project's `ttpassgen` directory if you want use ttpassgen by downloaded source code.
 
-Example: Generate word list and output to `out.txt`, the word format is prefix three digits, only allow 1、2、3, appear 2 or 3 times, end with `xyz`.
+Example: Generate word list and output to `out.txt`, the word start with numbers, only allow 1、2、3, appear 2 or 3 times, end with `xyz`.
 
 ```
 ttpassgen -r "[123]{2:3}xyz" out.txt
@@ -274,7 +272,7 @@ content of `in2.txt`:
 34
 ```
 
-When dictlist option defined as `in.dict,in2.dict` and _seperator_ is one space, run following command：
+When `--dictlist` option defined as `in.dict,in2.dict` and _seperator_ is one space, run following command：
 
 ```bash
 ttpassgen --dictlist "in.txt,in2.txt" --rule "$0[_]?$1" -s " " out.txt

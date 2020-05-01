@@ -10,12 +10,12 @@ TTPassGen 是一个支持灵活定制的密码字典生成器，我们可以轻�
 # 特性
 
 - 使用组合，排列，条件规则等生成密码。
-- 支持可以组成密码的所有字符或单词（从 wordlist 选项中获取输入字典路径），有内置字符集，例如字母列表和数字列表。
+- 支持可以组成密码的所有字符或字符串，有内置字符集，例如字母列表和数字列表。
 - 可以指定单词中每个元素出现的顺序和频率。
 - 规则格式非常容易学习，程序易于使用，规则定义采用类似于正则表达式的风格。
 - 提供生成密码词典的耗时预估，输出文件大小预估和实时进度报告。
 - 使用 wordlist 选项可以支持中文之类的 unicode 字符组成密码。
-- 可以一次生成大量密码，无输出大小限制。
+- 可以一次性生成大量密码，无输出大小限制。
 - 支持通过设置每个输出字典的大小来将数据输出到多个文件，防止单个字典过大。
 
 # 安装
@@ -26,18 +26,16 @@ TTPassGen 是一个支持灵活定制的密码字典生成器，我们可以轻�
 pip install ttpassgen
 ```
 
-如果你使用的是 Windows 操作系统，可以直接下载[release version](https://github.com/tp7309/TTPassGen/releases)，这样就不需要 Python 环境了。
-
 # 使用要求
 
 Python 3.5 或其之后的版本。
-如果你使用的是 Windows 操作系统，不需要 Python 环境，也可以直接下载[release version](https://github.com/tp7309/TTPassGen/releases)。
+如果你使用的是 Windows 操作系统，可以直接下载[release version](https://github.com/tp7309/TTPassGen/releases)，这样就不需要 Python 环境了。
 
 # 快速使用
 
 > 如果是使用 ttpassgen.exe 文件，那么注意最好在 Windows 的命令提示符窗口下执行命令。
 
-示例：生成单词列表输出到文件 out.txt，单词格式为最前面是三个数字，只允许 1、2、3，重复 2 或 3 次，以`xyz`结尾。
+示例：生成单词列表输出到文件 out.txt，单词以数字开头，只允许 1、2、3，重复 2 或 3 次，以`xyz`结尾。
 
 ```
 ttpassgen -r "[123]{2:3}xyz" out.txt
@@ -268,7 +266,7 @@ cd
 34
 ```
 
-例如当`distlist`选项定义为 `in.dict,in2.dict`，指定单词分隔符为一个空格时，执行如下命令：
+例如当`--distlist`选项定义为 `in.dict,in2.dict`，指定单词分隔符为一个空格时，执行如下命令：
 
 ```bash
 ttpassgen --dictlist "in.txt,in2.txt" --rule "$0[_]?$1" -s " " out.txt

@@ -6,6 +6,7 @@ out.dict.2
 coverage_html/
 Pipfile.lock
 .history/
+.vscode/settings.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

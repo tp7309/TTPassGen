@@ -104,7 +104,7 @@ def pretty_size(size_bytes):
     # on Mac/Linux, 1KB=1024B.
     # see more: https://en.wikipedia.org/wiki/Gigabyte#Consumer_confusion
     base = 1000
-    base = 1024 if os.name == 'nt' else 1024
+    base = 1024 if os.name == 'nt' else 1000
     size_name = ("Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
     i = int(math.floor(math.log(size_bytes, base)))
     p = math.pow(base, i)

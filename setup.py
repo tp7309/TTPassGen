@@ -28,7 +28,7 @@ install_requires = ['click', 'tqdm']
 
 setup(
     name='ttpassgen',
-    version='1.1.1',
+    version='1.1.2',
     description=description,
     author='tp7309',
     author_email='yiyou7309@gmail.com',

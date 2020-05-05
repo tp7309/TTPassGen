@@ -100,8 +100,8 @@ def pretty_size(size_bytes):
     if size_bytes == 0:
         return "0 Bytes"
     # Different operating systems have differences when display file size.
-    # on Windows, 1Kb=1024B, actual means 1KiB=1024B.
-    # on Mac/Linux, 1KB=1024B.
+    # on Windows, 1KB=1024B, actual means 1KiB=1024B.
+    # on Mac/Linux, 1KB=1000B.
     # see more: https://en.wikipedia.org/wiki/Gigabyte#Consumer_confusion
     base = 1000
     base = 1024 if os.name == 'nt' else 1000

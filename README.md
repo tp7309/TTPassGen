@@ -15,9 +15,9 @@ README i18n: [中文说明](https://github.com/tp7309/TTPassGen/blob/master/READ
 - support all characters or words(from wordlist option) that can make up a password, some built-in charset has been provided, such as lowercase letter list and numeric list.
 - you can specify the order and frequency of each element in the word.
 - simple rule format, and easy to use, rule could be defined similar regex's style.
-- time-consuming estimates, output size estimates, and real-time progress reports.
+- time-consuming estimate, output size estimate, and progress report.
 - unicode word support by using wordlist option.
-- generation of large amounts of passwords at once, no output size limit.
+- generation of large amount of passwords at once, no output size limit.
 - support split output by file size.
 
 # Install
@@ -172,7 +172,7 @@ Short rule format:
 
 - **[]{m:n}**
 
-  same as `[]{m:m:global_repeat_mode}`
+  same as `[]{m:n:global_repeat_mode}`
 
 - **[]{n}**
 
@@ -272,7 +272,7 @@ content of `in2.txt`:
 34
 ```
 
-When `--dictlist` option defined as `in.dict,in2.dict` and _seperator_ is one space, run following command：
+When `--dictlist` option defined as `in.txt,in2.txt` and _seperator_ is one space, run following command：
 
 ```bash
 ttpassgen --dictlist "in.txt,in2.txt" --rule "$0[_]?$1" -s " " out.txt

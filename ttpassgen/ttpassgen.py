@@ -103,7 +103,6 @@ def pretty_size(size_bytes):
     # on Windows, 1KB=1024B, actual means 1KiB=1024B.
     # on Mac/Linux, 1KB=1000B.
     # see more: https://en.wikipedia.org/wiki/Gigabyte#Consumer_confusion
-    base = 1000
     base = 1024 if os.name == 'nt' else 1000
     size_name = ("Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB")
     i = int(math.floor(math.log(size_bytes, base)))

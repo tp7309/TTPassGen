@@ -86,7 +86,7 @@ Options:
   --help                         显示帮助信息。
 ```
 
-输出文件默认采用 utf-8 编码，每个密码占一行，推荐使用*Notepad++*打开。
+输出文件默认采用 utf-8 编码，每个密码占一行，推荐使用 _Notepad++_ 打开。
 
 # 规则格式
 
@@ -164,7 +164,7 @@ Options:
 
 - **[]{m:n}**
 
-  等价于 `[]{m:m:global_repeat_mode}`
+  等价于 `[]{m:n:global_repeat_mode}`
 
 - **[]{n}**
 
@@ -266,7 +266,7 @@ cd
 34
 ```
 
-例如当`--distlist`选项定义为 `in.dict,in2.dict`，指定单词分隔符为一个空格时，执行如下命令：
+例如当`--distlist`选项定义为 `in.txt,in2.txt`，指定单词分隔符为一个空格时，执行如下命令：
 
 ```bash
 ttpassgen --dictlist "in.txt,in2.txt" --rule "$0[_]?$1" -s " " out.txt

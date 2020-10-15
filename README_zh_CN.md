@@ -3,7 +3,8 @@
 [![Build Status](https://travis-ci.org/tp7309/TTPassGen.svg?branch=master)](https://travis-ci.org/tp7309/TTPassGen)
 [![Coverage Status](https://coveralls.io/repos/github/tp7309/TTPassGen/badge.svg?branch=master)](https://coveralls.io/github/tp7309/TTPassGen?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/25f05aa766c34eea9b9692725237e873)](https://www.codacy.com/app/tp7309/TTPassGen?utm_source=github.com&utm_medium=referral&utm_content=tp7309/TTPassGen&utm_campaign=Badge_Grade)
-[![Rawsec's CyberSecurity Inventory](https://inventory.rawsec.ml/img/badges/Rawsec-inventoried-FF5050_flat.svg)](https://inventory.rawsec.ml/tools.html#TTPassGen)
+[![Rawsec's CyberSecurity Inventory](https://inventory.raw.pm/img/badges/Rawsec-inventoried-FF5050_flat.svg)](https://inventory.raw.pm/tools.html#TTPassGen)
+[![BlackArch package](https://repology.org/badge/version-for-repo/blackarch/ttpassgen.svg)](https://repology.org/project/ttpassgen/versions)
 
 TTPassGen 是一个支持灵活定制的密码字典生成器，我们可以轻松地定义各种规则来生成所需的单词组合。因为基于 Python，所以可以跨平台使用。
 
@@ -11,7 +12,7 @@ TTPassGen 是一个支持灵活定制的密码字典生成器，我们可以轻�
 
 - 使用组合，排列，条件规则等生成密码。
 - 支持可以组成密码的所有字符或字符串，有内置字符集，例如字母列表和数字列表。
-- 可以指定单词中每个元素出现的顺序和频率。
+- 可以指定密码中每个元素出现的顺序和频率。
 - 规则格式非常容易学习，程序易于使用，规则定义采用类似于正则表达式的风格。
 - 提供生成密码词典的耗时预估，输出文件大小预估和实时进度报告。
 - 使用 wordlist 选项可以支持中文之类的 unicode 字符组成密码。

@@ -3,9 +3,10 @@
 [![Build Status](https://travis-ci.org/tp7309/TTPassGen.svg?branch=master)](https://travis-ci.org/tp7309/TTPassGen)
 [![Coverage Status](https://coveralls.io/repos/github/tp7309/TTPassGen/badge.svg?branch=master)](https://coveralls.io/github/tp7309/TTPassGen?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/25f05aa766c34eea9b9692725237e873)](https://www.codacy.com/app/tp7309/TTPassGen?utm_source=github.com&utm_medium=referral&utm_content=tp7309/TTPassGen&utm_campaign=Badge_Grade)
-[![Rawsec's CyberSecurity Inventory](https://inventory.rawsec.ml/img/badges/Rawsec-inventoried-FF5050_flat.svg)](https://inventory.rawsec.ml/tools.html#TTPassGen)
+[![Rawsec's CyberSecurity Inventory](https://inventory.raw.pm/img/badges/Rawsec-inventoried-FF5050_flat.svg)](https://inventory.raw.pm/tools.html#TTPassGen)
+[![BlackArch package](https://repology.org/badge/version-for-repo/blackarch/ttpassgen.svg)](https://repology.org/project/ttpassgen/versions)
 
-TTPassGen is a highly flexiable and scriptable password dictionary generator base on Python, you can easily use various rules to generate the desired combination of words.
+TTPassGen is a highly flexible and scriptable password dictionary generator base on Python, you can easily use various rules to generate the desired combination of words.
 
 README i18n: [中文说明](https://github.com/tp7309/TTPassGen/blob/master/README_zh_CN.md)
 
@@ -13,7 +14,7 @@ README i18n: [中文说明](https://github.com/tp7309/TTPassGen/blob/master/READ
 
 - generate password use combination、permulation、conditional rules and so on.
 - support all characters or words(from wordlist option) that can make up a password, some built-in charset has been provided, such as lowercase letter list and numeric list.
-- you can specify the order and frequency of each element in the word.
+- you can specify the order and frequency of each element in the password.
 - simple rule format, and easy to use, rule could be defined similar regex's style.
 - time-consuming estimate, output size estimate, and progress report.
 - unicode word support by using wordlist option.

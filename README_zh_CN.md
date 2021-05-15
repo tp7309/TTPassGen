@@ -278,3 +278,9 @@ ttpassgen --dictlist "in.txt,in2.txt" --rule "$0[_]?$1" -s " " out.txt
 ```
 ab12 ab34 ab_12 ab_34 cd12 cd34 cd_12 cd_34
 ```
+
+## 支持
+
+觉得对有帮助，请作者喝杯咖啡 (微信)：
+
+![qrcode](https://user-images.githubusercontent.com/5046191/118354036-b075ca80-b59b-11eb-862e-ffd1b8e1659f.png)

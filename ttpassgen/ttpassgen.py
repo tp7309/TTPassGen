@@ -234,7 +234,7 @@ def large_dict_word_productor(rule, inencoding):
 
 
 def normal_dict_word_productor(rule, inencoding):
-    with open(rule.dict_path, 'r') as f:
+    with open(rule.dict_path, 'r', encoding=inencoding) as f:
         return f.read().splitlines()
 
 

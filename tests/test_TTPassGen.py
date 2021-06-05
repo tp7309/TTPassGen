@@ -8,8 +8,31 @@ import shutil
 
 tests_path = os.path.dirname(os.path.abspath(__file__))
 
-lc = None
-go = None
+
+def lc():
+    if not os.path.exists('testout.dict'):
+        return 0
+    with open('testout.dict', 'r') as f:
+        return len(f.readlines())
+
+
+def go(rule, dictlist=os.path.join(tests_path, 'in.dict'),
+       mode=0,
+       partSize=0,
+       diskCache=500,
+       repeatMode='?',
+       separator=None,
+       debugMode=1,
+       output='testout.dict'):
+    try:
+        ttpassgen.cli.main([
+            '-m', mode, '-d', dictlist, '-r', rule, '-g', repeatMode,
+            '-c', diskCache, '-p', partSize, '-s', separator,
+            '--debug_mode', debugMode, output
+        ])
+    except (SystemExit):
+        pass
+    return lc()
 
 
 # tests/in.dict generate by: ttpassgen -r "[123]{3}" in.dict
@@ -17,37 +40,6 @@ class Test_ttpassgen(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         super(Test_ttpassgen, cls).setUpClass()
-
-        def lc_func():
-            if not os.path.exists('testout.dict'):
-                return 0
-            with open('testout.dict', 'r') as f:
-                return len(f.readlines())
-
-        global lc
-        lc = lc_func
-
-        def go_func(rule,
-                    dictlist=os.path.join(tests_path, 'in.dict'),
-                    mode=0,
-                    partSize=0,
-                    diskCache=500,
-                    repeatMode='?',
-                    separator=None,
-                    debugMode=1,
-                    output='testout.dict'):
-            try:
-                ttpassgen.cli.main([
-                    '-m', mode, '-d', dictlist, '-r', rule, '-g', repeatMode,
-                    '-c', diskCache, '-p', partSize, '-s', separator,
-                    '--debug_mode', debugMode, output
-                ])
-            except (SystemExit):
-                pass
-            return lc()
-
-        global go
-        go = go_func
 
     @classmethod
     def tearDownClass(cls):

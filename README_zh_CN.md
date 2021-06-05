@@ -1,8 +1,7 @@
 # TTPassGen
 
-[![Build Status](https://travis-ci.org/tp7309/TTPassGen.svg?branch=master)](https://travis-ci.org/tp7309/TTPassGen)
-[![Coverage Status](https://coveralls.io/repos/github/tp7309/TTPassGen/badge.svg?branch=master)](https://coveralls.io/github/tp7309/TTPassGen?branch=master)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/25f05aa766c34eea9b9692725237e873)](https://www.codacy.com/app/tp7309/TTPassGen?utm_source=github.com&utm_medium=referral&utm_content=tp7309/TTPassGen&utm_campaign=Badge_Grade)
+[![Build Status](https://travis-ci.com/tp7309/TTPassGen.svg?branch=master)](https://travis-ci.com/tp7309/TTPassGen)
+[![codecov](https://codecov.io/gh/tp7309/TTPassGen/branch/master/graph/badge.svg?token=lyEWTqfeb9)](https://codecov.io/gh/tp7309/TTPassGen)
 [![Rawsec's CyberSecurity Inventory](https://inventory.raw.pm/img/badges/Rawsec-inventoried-FF5050_flat.svg)](https://inventory.raw.pm/tools.html#TTPassGen)
 [![BlackArch package](https://repology.org/badge/version-for-repo/blackarch/ttpassgen.svg)](https://repology.org/project/ttpassgen/versions)
 

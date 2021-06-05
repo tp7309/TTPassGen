@@ -5,9 +5,10 @@ verify_ssl = true
 
 [dev-packages]
 flake8 = "*"
-nose2 = "*"
 autopep8 = "*"
 pyinstaller = "*"
+pytest = "*"
+pytest-cov = "*"
 
 [packages]
 tqdm = ">=4.23"

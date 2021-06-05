@@ -2,12 +2,15 @@ language: python
 python:
   - "3.5"
   - "3.6"
+  - "3.7"
+  - "3.8"
+  - "3.9"
   - "nightly"
 # command to install dependencies
 install:
-  - pip install -r requirements.txt
-  - pip install coveralls
+  pip install -r requirements.txt
+  pip install pytest-cov
 # command to run tests
-script: nosetests --with-coverage --cover-package=ttpassgen
+script: pytest --cov=ttpassgen
 after_success:
   coveralls

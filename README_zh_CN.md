@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.com/tp7309/TTPassGen.svg?branch=master)](https://travis-ci.com/tp7309/TTPassGen)
 [![codecov](https://codecov.io/gh/tp7309/TTPassGen/branch/master/graph/badge.svg?token=lyEWTqfeb9)](https://codecov.io/gh/tp7309/TTPassGen)
+[![DeepSource](https://deepsource.io/gh/tp7309/TTPassGen.svg/?label=active+issues&show_trend=true)](https://deepsource.io/gh/tp7309/TTPassGen/?ref=repository-badge)
 [![Rawsec's CyberSecurity Inventory](https://inventory.raw.pm/img/badges/Rawsec-inventoried-FF5050_flat.svg)](https://inventory.raw.pm/tools.html#TTPassGen)
 [![BlackArch package](https://repology.org/badge/version-for-repo/blackarch/ttpassgen.svg)](https://repology.org/project/ttpassgen/versions)
 

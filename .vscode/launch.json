@@ -7,7 +7,7 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": true,
-            "pythonPath": "${config:python.interpreterPath}",
+            "python": "${command:python.interpreterPath}",
             "program": "${file}",
             "cwd": "${workspaceRoot}",
             "env": {},
@@ -24,13 +24,13 @@
             "request": "launch",
             "stopOnEntry": true,
             "osx": {
-                "pythonPath": "${env:SPARK_HOME}/bin/spark-submit"
+                "python": "${env:SPARK_HOME}/bin/spark-submit"
             },
             "windows": {
-                "pythonPath": "${env:SPARK_HOME}/bin/spark-submit.cmd"
+                "python": "${env:SPARK_HOME}/bin/spark-submit.cmd"
             },
             "linux": {
-                "pythonPath": "${env:SPARK_HOME}/bin/spark-submit"
+                "python": "${env:SPARK_HOME}/bin/spark-submit"
             },
             "program": "${file}",
             "cwd": "${workspaceRoot}",
@@ -47,7 +47,7 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": true,
-            "pythonPath": "${config:python.interpreterPath}",
+            "python": "${command:python.interpreterPath}",
             "module": "module.name",
             "cwd": "${workspaceRoot}",
             "env": {},
@@ -63,7 +63,7 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": true,
-            "pythonPath": "${config:python.interpreterPath}",
+            "python": "${command:python.interpreterPath}",
             "program": "${file}",
             "cwd": "",
             "console": "integratedTerminal",
@@ -79,7 +79,7 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": true,
-            "pythonPath": "${config:python.interpreterPath}",
+            "python": "${command:python.interpreterPath}",
             "program": "${file}",
             "cwd": "",
             "console": "externalTerminal",
@@ -95,7 +95,7 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": true,
-            "pythonPath": "${config:python.interpreterPath}",
+            "python": "${command:python.interpreterPath}",
             "program": "${workspaceRoot}/manage.py",
             "cwd": "${workspaceRoot}",
             "args": [
@@ -116,7 +116,7 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
-            "pythonPath": "${config:python.interpreterPath}",
+            "python": "${command:python.interpreterPath}",
             "program": "fully qualified path fo 'flask' executable. Generally located along with python interpreter",
             "cwd": "${workspaceRoot}",
             "env": {
@@ -139,7 +139,7 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
-            "pythonPath": "${config:python.interpreterPath}",
+            "python": "${command:python.interpreterPath}",
             "program": "${workspaceRoot}/run.py",
             "cwd": "${workspaceRoot}",
             "args": [],
@@ -156,7 +156,7 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": true,
-            "pythonPath": "${config:python.interpreterPath}",
+            "python": "${command:python.interpreterPath}",
             "cwd": "${workspaceRoot}",
             "env": {},
             "envFile": "${workspaceRoot}/.env",
@@ -175,7 +175,7 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": true,
-            "pythonPath": "${config:python.interpreterPath}",
+            "python": "${command:python.interpreterPath}",
             "program": "${workspaceRoot}/console.py",
             "cwd": "${workspaceRoot}",
             "args": [

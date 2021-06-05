@@ -215,16 +215,14 @@ def char_array_word_productor_wrapper(func):
 def char_array_word_productor(repeat_mode, expanded_char_array, length):
     if repeat_mode == '?':
         return itertools.permutations(expanded_char_array, r=length)
-    else:
-        return itertools.product(expanded_char_array, repeat=length)
+    return itertools.product(expanded_char_array, repeat=length)
 
 
 @char_array_word_productor_wrapper
 def string_array_word_productor(repeat_mode, string_array, repeat_count):
     if repeat_mode == '?':
         return itertools.permutations(string_array, r=repeat_count)
-    else:
-        return itertools.product(string_array, repeat=repeat_count)
+    return itertools.product(string_array, repeat=repeat_count)
 
 
 def large_dict_word_productor(rule, inencoding):
@@ -361,10 +359,10 @@ def extract_rules(dictList, rule, global_repeat_mode):
                 else:
                     min_length = max_length = 1
                 if min_length < 0 or max_length < 0 or min_length > max_length \
-                        or (min_length == 0 and max_length == 0):
+                                        or (min_length == 0 and max_length == 0):
                     echo("invalid min_repeat: %d or max_repeat: %d, rule: %s" % (min_length, max_length, match[0]))
                     return None
-                elif max_length > len(expanded_char_array):
+                if max_length > len(expanded_char_array):
                     echo("rule '%s' is invalid, max_repeat(%d) cannot be greater than the size of char_array(%d)!"
                          % (match[0], max_length, len(expanded_char_array)))
                     return None

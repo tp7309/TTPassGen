@@ -39,7 +39,7 @@ _PART_DICT_NAME_FORMAT = '%s.%d'
 # []{minLength:maxLength:repeat_mode}
 # []{minLength:maxLength}
 # []{length}
-class CharArrayRule(object):
+class CharArrayRule:
     def __init__(self, raw_rule, min_length, max_length, char_array, repeat_mode):
         self.raw_rule = raw_rule
         self.min_length = min_length
@@ -49,7 +49,7 @@ class CharArrayRule(object):
 
 
 # read string from dict_path, format: $dict_index
-class DictRule(object):
+class DictRule:
     def __init__(self, raw_rule, dict_index, dict_path):
         self.raw_rule = raw_rule
         self.dict_index = dict_index
@@ -59,7 +59,7 @@ class DictRule(object):
 # normal string, format:
 # $(string1){min_repeat:max_repeat:repeat_mode}
 # $(string1,string2){min_repeat:max_repeat:repeat_mode}
-class StringArrayRule(object):
+class StringArrayRule:
     def __init__(self, raw_rule, min_repeat, max_repeat, string_array, repeat_mode):
         self.raw_rule = raw_rule
         self.min_repeat = min_repeat
@@ -69,7 +69,7 @@ class StringArrayRule(object):
 # Rule class end
 
 
-class WordProductor(object):
+class WordProductor:
     def __init__(self, count_list, size_list, productors):
         self.count_list = count_list
         self.size_list = size_list

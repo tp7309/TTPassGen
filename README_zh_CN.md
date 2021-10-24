@@ -269,7 +269,14 @@ cd
 
 例如当`--distlist`选项定义为 `in.txt,in2.txt`，指定单词分隔符为一个空格时，执行如下命令：
 
+<<<<<<< HEAD
 $\color{red}{重要}$
+=======
+```diff
+- 重要
+```
+
+>>>>>>> dev
 ```bash
 # 使用单引号
 ttpassgen --dictlist "in.txt,in2.txt" --rule '$0[_]?$1' -s " " out.txt

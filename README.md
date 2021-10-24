@@ -275,8 +275,14 @@ content of `in2.txt`:
 
 When `--dictlist` option defined as `in.txt,in2.txt` and _seperator_ is one space, run following command：
 
+$\color{red}{IMPORTMENT}$
 ```bash
-ttpassgen --dictlist "in.txt,in2.txt" --rule "$0[_]?$1" -s " " out.txt
+# use single quotes
+ttpassgen --dictlist "in.txt,in2.txt" --rule '$0[_]?$1' -s " " out.txt
+# OR in Linux
+ttpassgen --dictlist "in.txt,in2.txt" --rule "\$0[_]?\$1" -s " " out.txt
+# OR in PowerShell
+ttpassgen --dictlist "in.txt,in2.txt" --rule "`$0[_]?`$1" -s " " out.txt
 ```
 
 Output:

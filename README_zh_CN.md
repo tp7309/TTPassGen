@@ -39,7 +39,7 @@ Python 3.5 或其之后的版本。
 示例：生成单词列表输出到文件 out.txt，单词以数字开头，只允许 1、2、3，重复 2 或 3 次，以`xyz`结尾。
 
 ```
-ttpassgen -r "[123]{2:3}xyz" out.txt
+ttpassgen -r '[123]{2:3}xyz' out.txt
 ```
 
 可以打开 out.dict 查看结果（建议用 Notepad++打开）。
@@ -269,8 +269,14 @@ cd
 
 例如当`--distlist`选项定义为 `in.txt,in2.txt`，指定单词分隔符为一个空格时，执行如下命令：
 
+$\color{red}{重要}$
 ```bash
-ttpassgen --dictlist "in.txt,in2.txt" --rule "$0[_]?$1" -s " " out.txt
+# 使用单引号
+ttpassgen --dictlist "in.txt,in2.txt" --rule '$0[_]?$1' -s " " out.txt
+# OR in Linux
+ttpassgen --dictlist "in.txt,in2.txt" --rule "\$0[_]?\$1" -s " " out.txt
+# OR in PowerShell
+ttpassgen --dictlist "in.txt,in2.txt" --rule "`$0[_]?`$1" -s " " out.txt
 ```
 
 输出:

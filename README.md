@@ -40,7 +40,7 @@ Python 3.5 or later. if you are using windows, you could just use the [release v
 Example: Generate word list and output to `out.txt`, the word start with numbers, only allow 1、2、3, appear 2 or 3 times, end with `xyz`.
 
 ```
-ttpassgen -r "[123]{2:3}xyz" out.txt
+ttpassgen -r '[123]{2:3}xyz' out.txt
 ```
 
 Done.
@@ -275,8 +275,17 @@ content of `in2.txt`:
 
 When `--dictlist` option defined as `in.txt,in2.txt` and _seperator_ is one space, run following command：
 
+```diff
+- IMPORTANT
+```
+
 ```bash
-ttpassgen --dictlist "in.txt,in2.txt" --rule "$0[_]?$1" -s " " out.txt
+# 使用单引号
+ttpassgen --dictlist "in.txt,in2.txt" --rule '$0[_]?$1' -s " " out.txt
+# OR in Linux
+ttpassgen --dictlist "in.txt,in2.txt" --rule "\$0[_]?\$1" -s " " out.txt
+# OR in PowerShell
+ttpassgen --dictlist "in.txt,in2.txt" --rule "`$0[_]?`$1" -s " " out.txt
 ```
 
 Output:

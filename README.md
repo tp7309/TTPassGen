@@ -275,18 +275,12 @@ content of `in2.txt`:
 
 When `--dictlist` option defined as `in.txt,in2.txt` and _seperator_ is one space, run following command：
 
-<<<<<<< HEAD
-$\color{red}{IMPORTMENT}$
-```bash
-# use single quotes
-=======
 ```diff
 - IMPORTANT
 ```
 
 ```bash
-# 使用单引号
->>>>>>> dev
+# use single quotes
 ttpassgen --dictlist "in.txt,in2.txt" --rule '$0[_]?$1' -s " " out.txt
 # OR in Linux
 ttpassgen --dictlist "in.txt,in2.txt" --rule "\$0[_]?\$1" -s " " out.txt

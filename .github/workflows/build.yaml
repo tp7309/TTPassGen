@@ -23,7 +23,7 @@ jobs:
           pip install -r requirements.txt
       - name: Test
         run: |
-          pytest --cov tests --cov-report xml
+          pytest --cov ttpassgen --cov-report xml
       - name: Coverage
         uses: codecov/codecov-action@v2
         with:
@@ -36,3 +36,9 @@ jobs:
           coverage-file: coverage.xml
           dsn: ${{ secrets.DEEPSOURCE_DSN }}
           # fail-ci-on-error: false
+      - name: Publish package
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}

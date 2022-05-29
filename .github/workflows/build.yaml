@@ -29,6 +29,7 @@ jobs:
         with:
           fail_ci_if_error: false # optional (default = false)
       - name: Lints
+        if: ${{matrix.os == 'ubuntu-latest'}}
         uses: deepsourcelabs/test-coverage-action@master
         with:
           key: python

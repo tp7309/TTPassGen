@@ -25,8 +25,11 @@ jobs:
         run: |
           pytest --cov tests --cov-report xml
       - name: Coverage
-        uses: deepsourcelabs/test-coverage-action@master
         uses: codecov/codecov-action@v2
+        with:
+          fail_ci_if_error: false # optional (default = false)
+      - name: Lints
+        uses: deepsourcelabs/test-coverage-action@master
         with:
           key: python
           coverage-file: coverage.xml

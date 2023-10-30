@@ -282,8 +282,10 @@ When `--dictlist` option defined as `in.txt,in2.txt` and _seperator_ is one spac
 ```bash
 # use single quotes
 ttpassgen --dictlist "in.txt,in2.txt" --rule '$0[_]?$1' -s " " out.txt
-# OR in Linux
+# OR in bash shell
 ttpassgen --dictlist "in.txt,in2.txt" --rule "\$0[_]?\$1" -s " " out.txt
+# OR in Windows Command Prompt
+ttpassgen --dictlist "in.txt,in2.txt" --rule "$0[_]?$1" -s " " out.txt
 # OR in PowerShell
 ttpassgen --dictlist "in.txt,in2.txt" --rule "`$0[_]?`$1" -s " " out.txt
 ```

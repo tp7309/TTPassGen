@@ -122,6 +122,7 @@ class Test_ttpassgen(unittest.TestCase):
         self.assertEqual(go('[a?dA]{1:2}'), 144)
         self.assertEqual(go('[?d]{2:2}'), 90)
         self.assertEqual(go('[?d]{2}'), 90)
+        self.assertEqual(go('[?a]{1:1:*}'),94)
 
     def test_dict_mark_char_array_rule(self):
         self.assertEqual(go('$0[abc]?'), 24)

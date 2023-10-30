@@ -24,7 +24,8 @@ _MODES = OrderedDict([(0, 'combination rule mode')])
 _BUILT_IN_CHAR_ARRAY = OrderedDict(
     [("?l", "abcdefghijklmnopqrstuvwxyz"),
      ("?u", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"), ("?d", "0123456789"),
-     ("?s", "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"), ("?a", "?l?u?d?s"),
+     ("?s", "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"), 
+     ("?a", "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"),
      ("?q", "]")])
 
 _REPEAT_MODES = OrderedDict([("?", "0 or 1 repetitions"),

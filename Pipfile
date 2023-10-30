@@ -9,6 +9,7 @@ autopep8 = "*"
 pyinstaller = "*"
 pytest = "*"
 pytest-cov = "*"
+twine = "*"
 
 [packages]
 tqdm = ">=4.23"

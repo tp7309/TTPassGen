@@ -169,32 +169,18 @@ Repeat mode support `?` and `*`.
 
   `[123]{1:2:*} -> 1 2 3 11 12 13 21 22 23 31 32 33`
 
-Short rule format:
-
-- **[]{m:n}**
-
-  same as `[]{m:n:global_repeat_mode}`
-
-- **[]{n}**
-
-  same as `[]{n:n:global_repeat_mode}`
-
-- **[]{n:r}**
-
-  same as `[]{n:n:r}`
-
 ### Example
 
 Generate 8-digit numeric password:
 
 ```
-[?d]{8:8:*} or [?d]{8:*} or [1234567890]{8:8:*}
+[?d]{8:8:*} or [1234567890]{8:8:*}
 ```
 
-Generate an 8-digit numeric password, and each char in the password can appear at most once. Because the default value of `global repeat mode` is '?', so you can skip set repeat_mode:
+Generate an 8-digit numeric password, and each char in the password can appear at most once:
 
 ```
-[?d]{8:8:?} or [?d]{8}
+[?d]{8:8:?}
 ```
 
 Generate a password of 7 to 8 digits in length. The word can be composed of upper and lower case letters, numbers, and `_`:

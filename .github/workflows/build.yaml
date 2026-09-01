@@ -21,6 +21,10 @@ jobs:
         run: |
           pip install pytest pytest-cov
           pip install -r requirements.txt
+          # Ensure tests run against the checked-out repository, not an
+          # already-installed release from PyPI.
+          pip uninstall -y ttpassgen || true
+          pip install -e .
       - name: Test
         run: |
           pytest --cov ttpassgen --cov-report xml

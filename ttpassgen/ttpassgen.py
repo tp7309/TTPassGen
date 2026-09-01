@@ -41,6 +41,16 @@ _PART_DICT_NAME_FORMAT = '%s.%d'
 # []{minLength:maxLength}
 # []{length}
 class CharArrayRule:
+    """Represents a rule that generates words from a character array.
+
+    Attributes:
+        raw_rule (str): Original rule string as provided by the user.
+        min_length (int): Minimum length of generated words for this rule.
+        max_length (int): Maximum length of generated words for this rule.
+        char_array (str): The expanded set of characters used to build words.
+        repeat_mode (str): Repeat mode indicator ('?' or '*').
+    """
+
     def __init__(self, raw_rule, min_length, max_length, char_array, repeat_mode):
         self.raw_rule = raw_rule
         self.min_length = min_length
@@ -51,6 +61,14 @@ class CharArrayRule:
 
 # read string from dict_path, format: $dict_index
 class DictRule:
+    """Represents a rule that references an external dictionary file.
+
+    Attributes:
+        raw_rule (str): Original rule token (e.g. "$0").
+        dict_index (int): Index into the user-provided dictlist.
+        dict_path (str): Filesystem path to the dictionary file.
+    """
+
     def __init__(self, raw_rule, dict_index, dict_path):
         self.raw_rule = raw_rule
         self.dict_index = dict_index
@@ -61,6 +79,16 @@ class DictRule:
 # $(string1){min_repeat:max_repeat:repeat_mode}
 # $(string1,string2){min_repeat:max_repeat:repeat_mode}
 class StringArrayRule:
+    """Represents a rule that generates words from a list of strings.
+
+    Attributes:
+        raw_rule (str): Original rule string as provided by the user.
+        min_repeat (int): Minimum repetition of elements when building words.
+        max_repeat (int): Maximum repetition of elements when building words.
+        string_array (list[str]): List of candidate strings to combine.
+        repeat_mode (str): Repeat mode indicator ('?' or '*').
+    """
+
     def __init__(self, raw_rule, min_repeat, max_repeat, string_array, repeat_mode):
         self.raw_rule = raw_rule
         self.min_repeat = min_repeat
@@ -71,6 +99,11 @@ class StringArrayRule:
 
 
 class WordProductor:
+    """Container describing the product (cartesian) generators for each rule.
+
+    Holds precomputed counts, approximate sizes and the iterable/productors
+    used later to stream the generated words.
+    """
     def __init__(self, count_list, size_list, productors):
         self.count_list = count_list
         self.size_list = size_list
@@ -78,15 +111,29 @@ class WordProductor:
 
     @classmethod
     def prod(cls, iterable):
+        """Return the product of numbers in an iterable.
+
+        Used to compute total number of generated words by multiplying
+        per-rule cardinalities.
+        """
+
         p = 1
         for n in iterable:
             p *= n
         return p
 
     def total_count(self):
+        """Total number of words producible by the current rule set."""
+
         return self.prod(self.count_list)
 
     def total_size(self, sep=os.linesep):
+        """Estimate total byte size of the generated output.
+
+        The calculation approximates the contribution of each rule and adds
+        separators between words.
+        """
+
         total = 0
         count = self.total_count()
         for i, size in enumerate(self.size_list):
@@ -98,6 +145,12 @@ class WordProductor:
 
 # Get file display size.
 def pretty_size(size_bytes):
+    """Return a human-readable file size string for `size_bytes`.
+
+    Uses 1024 base on Windows and 1000 base on other systems to mirror
+    common platform representations.
+    """
+
     if size_bytes == 0:
         return "0 Bytes"
     # Different operating systems have differences when display file size.
@@ -117,6 +170,11 @@ def format_dict(d):
 
 
 def get_expanded_char_array(char_array):
+    """Replace built-in shorthand tokens (like ?l, ?d) with full character sets.
+
+    Returns the expanded character string used by CharArrayRule.
+    """
+
     expanded_char_array = char_array
     for (key, value) in _BUILT_IN_CHAR_ARRAY.items():
         expanded_char_array = expanded_char_array.replace(key, value)
@@ -134,6 +192,12 @@ def echo_tips(var_name):
 
 
 def get_char_array_rule_data_size(rule):
+    """Compute count and approximate size for a CharArrayRule.
+
+    Returns a tuple (count, size) where `count` is the number of words
+    producible by this rule and `size` is the sum of lengths (approx).
+    """
+
     size = count = float(0)
     if rule.repeat_mode == '?':
         # not allow element repeat in one word, permutation problem: (n!)/(n-k)!
@@ -154,6 +218,13 @@ def get_char_array_rule_data_size(rule):
 
 
 def get_string_array_rule_data_size(rule):
+    """Compute count and approximate size for a StringArrayRule.
+
+    If `size` cannot be determined (because elements are variable), this
+    function returns `size` as -1 to indicate it should be skipped for
+    precise size calculations.
+    """
+
     size = count = float(0)
     # normal string
     if rule.min_repeat == 1 and rule.max_repeat == 1 and len(rule.string_array) == 1:
@@ -180,8 +251,25 @@ def get_string_array_rule_data_size(rule):
 
 
 def get_dict_rule_data_size(rule, inencoding):
+    """Return (line_count, total_bytes_without_line_separators).
+
+    The function scans the dictionary file to count lines and estimates
+    the byte contribution excluding line separators. `inencoding` is
+    used to detect newline styles and read text chunks efficiently.
+    If the file is empty, return (0, 0) immediately to avoid seeking
+    or reading past bounds.
+    """
+
     sum_lines = 0
     sepLen = 1
+    # If file is empty, avoid seek(-1) which would raise an OSError.
+    try:
+        file_size = os.path.getsize(rule.dict_path)
+    except OSError:
+        return 0, 0
+    if file_size == 0:
+        return 0, 0
+
     with open(rule.dict_path, 'r', encoding=inencoding) as f:
         buffer_size = 1024 * 4
         read_func = f.read  # loop optimization
@@ -192,17 +280,23 @@ def get_dict_rule_data_size(rule, inencoding):
             chunk = read_func(buffer_size)
 
     # read file last byte for check whether file content end with line separator or not.
-    with open(rule.dict_path, 'rb', encoding=inencoding) as f:
+    with open(rule.dict_path, 'rb') as f:
         f.seek(-1, os.SEEK_END)
         last_byte = f.read()
         if not last_byte == b'\n':
             sum_lines += 1
 
     line_separator_count = sepLen * sum_lines
-    return sum_lines, (os.path.getsize(rule.dict_path) - line_separator_count)
+    return sum_lines, (file_size - line_separator_count)
 
 
 def char_array_word_productor_wrapper(func):
+    """Decorator to join tuple/iterable output into strings.
+
+    Many itertools functions return tuples of characters; this wrapper
+    joins them into Python strings to simplify downstream consumers.
+    """
+
     @functools.wraps(func)
     def wrapper(*args, **kw):
         f = func(*args, **kw)
@@ -214,6 +308,13 @@ def char_array_word_productor_wrapper(func):
 
 @char_array_word_productor_wrapper
 def char_array_word_productor(repeat_mode, expanded_char_array, length):
+    """Yield permutations or products of characters for given length.
+
+    If `repeat_mode` is '?', generate permutations (no repeated characters
+    within a single word). Otherwise generate the cartesian product
+    allowing repeats.
+    """
+
     if repeat_mode == '?':
         return itertools.permutations(expanded_char_array, r=length)
     return itertools.product(expanded_char_array, repeat=length)
@@ -221,18 +322,31 @@ def char_array_word_productor(repeat_mode, expanded_char_array, length):
 
 @char_array_word_productor_wrapper
 def string_array_word_productor(repeat_mode, string_array, repeat_count):
+    """Yield permutations or products of strings for given repeat count.
+
+    Mirrors `char_array_word_productor` but works with full string tokens
+    rather than single characters.
+    """
+
     if repeat_mode == '?':
         return itertools.permutations(string_array, r=repeat_count)
     return itertools.product(string_array, repeat=repeat_count)
 
 
 def large_dict_word_productor(rule, inencoding):
+    """Stream lines from a large dictionary file lazily (generator).
+
+    Each yielded item is stripped of surrounding whitespace/newlines.
+    """
+
     with open(rule.dict_path, 'r', encoding=inencoding) as f:
         for line in f:
             yield line.strip()
 
 
 def normal_dict_word_productor(rule, inencoding):
+    """Read a small dictionary file fully into memory and return list of lines."""
+
     with open(rule.dict_path, 'r', encoding=inencoding) as f:
         return f.read().splitlines()
 
@@ -240,6 +354,13 @@ def normal_dict_word_productor(rule, inencoding):
 def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
                           part_size, append_mode, separator, debug_mode, inencoding,
                           outencoding, output):
+    """Top-level orchestration: parse rules and spawn worker to produce words.
+
+    This function validates inputs, extracts parsed rule objects, starts a
+    worker (thread or process depending on `debug_mode`), and displays a
+    progress bar while the worker streams generated words to disk.
+    """
+
     if not dictlist and not rule:
         echo("dictlist and rule option must have at least one value!")
         return
@@ -301,6 +422,14 @@ def generate_dict_by_rule(mode, dictlist, rule, dict_cache, global_repeat_mode,
 
 
 def extract_rules(dictList, rule, global_repeat_mode):
+    """Parse the user-specified `rule` string into rule objects.
+
+    Supports character arrays (`[...]{...}`), dictionary references
+    (`$0`), and string arrays (`$(a,b){min:max}`). Returns a list of
+    `CharArrayRule`/`DictRule`/`StringArrayRule` instances in the order they
+    should be applied to generate words.
+    """
+
     splited_dict = re.split(r',\s*', dictList) if dictList else []
     dict_count = len(splited_dict)
     re_char_array = r"(\[([^\]]+?)\](\?|(\{-?\d+:-?\d+(:[\?\*])?\})|(\{-?\d+(:[\?\*])?\}))?)"
@@ -451,6 +580,10 @@ def generate_words_productor(rules, dict_cache_limit, inencoding):
 
 def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
                        separator, inencoding, outencoding, output):
+    """Generate words and write them to output using text mode with encoding.
+
+    Restored original text-based writer implementation (no binary BufferedWriter).
+    """
     productor = generate_words_productor(rules, dict_cache_limit, inencoding)
     result[1] = int(productor.total_count())
     result[0] = 1
@@ -472,7 +605,7 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     if real_part_size:
         first_output_file_name = _PART_DICT_NAME_FORMAT % (output, part_index)
 
-    file_mode = 'ab' if append_mode else 'wb'
+    file_mode = 'a' if append_mode else 'w'
     progress = 0
 
     def progress_monitor():
@@ -485,19 +618,26 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     try:
         p = itertools.product(*productor.productors) if len(
             productor.productors) > 1 else productor.productors[0]
-        f = open(first_output_file_name, file_mode)
+        f = open(first_output_file_name, file_mode, encoding=outencoding)
 
         if sys.version_info < (3, 0):
             echo('python 2.x not supported')
             return
-        if real_part_size:  # avoid condition code cost time.
-            # complex rule, more join cost.
+
+        # Helper to obtain the output line string from product element `w`.
+        def make_line(w):
+            if isinstance(w, tuple):
+                return ''.join(w) + word_separator
+            return w + word_separator
+
+        if real_part_size:  # split into parts by byte-size
             if len(productor.productors) > 1:
                 for w in p:
-                    content = (''.join(w) + word_separator).encode(outencoding)
-                    f.write(content)
+                    line = make_line(w)
+                    encoded = line.encode(outencoding)
+                    f.write(line)
                     progress += 1
-                    line_length = len(content)
+                    line_length = len(encoded)
                     curr_size += line_length
                     if curr_size > real_part_size:
                         curr_size = line_length
@@ -505,13 +645,14 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
                         part_index += 1
                         f = open(
                             _PART_DICT_NAME_FORMAT % (output, part_index),
-                            file_mode)
+                            file_mode, encoding=outencoding)
             else:
                 for w in p:
-                    content = (w + word_separator).encode(outencoding)
-                    f.write(content)
+                    line = make_line(w)
+                    encoded = line.encode(outencoding)
+                    f.write(line)
                     progress += 1
-                    line_length = len(content)
+                    line_length = len(encoded)
                     curr_size += line_length
                     if curr_size > real_part_size:
                         curr_size = line_length
@@ -519,16 +660,15 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
                         part_index += 1
                         f = open(
                             _PART_DICT_NAME_FORMAT % (output, part_index),
-                            file_mode)
+                            file_mode, encoding=outencoding)
         else:
-            # complex rule, more join cost.
             if len(productor.productors) > 1:
                 for w in p:
-                    f.write((''.join(w) + word_separator).encode(outencoding))
+                    f.write(make_line(w))
                     progress += 1
             else:
                 for w in p:
-                    f.write((w + word_separator).encode(outencoding))
+                    f.write(make_line(w))
                     progress += 1
     finally:
         f.close()

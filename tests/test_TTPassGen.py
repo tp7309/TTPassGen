@@ -5,6 +5,18 @@ from ttpassgen import ttpassgen
 import unittest
 import os
 import shutil
+import sys
+
+# Debug: ensure the imported `ttpassgen` module comes from this repository
+tests_path = os.path.dirname(os.path.abspath(__file__))
+repo_root = os.path.abspath(os.path.join(tests_path, '..'))
+mod_path = os.path.realpath(getattr(ttpassgen, '__file__', ''))
+print('DEBUG: imported ttpassgen from:', mod_path)
+print('DEBUG: repo root:', repo_root)
+if not mod_path.startswith(repo_root):
+    raise RuntimeError(
+        'Imported ttpassgen is not from repository source. ' \
+        'Ensure CI installs the local package (pip install -e .) or sets PYTHONPATH.')
 
 tests_path = os.path.dirname(os.path.abspath(__file__))
 

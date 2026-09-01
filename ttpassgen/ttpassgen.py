@@ -262,13 +262,6 @@ def get_dict_rule_data_size(rule, inencoding):
 
     sum_lines = 0
     sepLen = 1
-    # If file is empty, avoid seek(-1) which would raise an OSError.
-    try:
-        file_size = os.path.getsize(rule.dict_path)
-    except OSError:
-        return 0, 0
-    if file_size == 0:
-        return 0, 0
 
     with open(rule.dict_path, 'r', encoding=inencoding) as f:
         buffer_size = 1024 * 4
@@ -280,14 +273,14 @@ def get_dict_rule_data_size(rule, inencoding):
             chunk = read_func(buffer_size)
 
     # read file last byte for check whether file content end with line separator or not.
-    with open(rule.dict_path, 'rb') as f:
+    with open(rule.dict_path, 'rb', encoding=inencoding) as f:
         f.seek(-1, os.SEEK_END)
         last_byte = f.read()
         if not last_byte == b'\n':
             sum_lines += 1
 
     line_separator_count = sepLen * sum_lines
-    return sum_lines, (file_size - line_separator_count)
+    return sum_lines, (os.path.getsize(rule.dict_path) - line_separator_count)
 
 
 def char_array_word_productor_wrapper(func):
@@ -580,10 +573,6 @@ def generate_words_productor(rules, dict_cache_limit, inencoding):
 
 def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
                        separator, inencoding, outencoding, output):
-    """Generate words and write them to output using text mode with encoding.
-
-    Restored original text-based writer implementation (no binary BufferedWriter).
-    """
     productor = generate_words_productor(rules, dict_cache_limit, inencoding)
     result[1] = int(productor.total_count())
     result[0] = 1
@@ -605,7 +594,7 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     if real_part_size:
         first_output_file_name = _PART_DICT_NAME_FORMAT % (output, part_index)
 
-    file_mode = 'a' if append_mode else 'w'
+    file_mode = 'ab' if append_mode else 'wb'
     progress = 0
 
     def progress_monitor():
@@ -618,26 +607,19 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
     try:
         p = itertools.product(*productor.productors) if len(
             productor.productors) > 1 else productor.productors[0]
-        f = open(first_output_file_name, file_mode, encoding=outencoding)
+        f = open(first_output_file_name, file_mode)
 
         if sys.version_info < (3, 0):
             echo('python 2.x not supported')
             return
-
-        # Helper to obtain the output line string from product element `w`.
-        def make_line(w):
-            if isinstance(w, tuple):
-                return ''.join(w) + word_separator
-            return w + word_separator
-
-        if real_part_size:  # split into parts by byte-size
+        if real_part_size:  # avoid condition code cost time.
+            # complex rule, more join cost.
             if len(productor.productors) > 1:
                 for w in p:
-                    line = make_line(w)
-                    encoded = line.encode(outencoding)
-                    f.write(line)
+                    content = (''.join(w) + word_separator).encode(outencoding)
+                    f.write(content)
                     progress += 1
-                    line_length = len(encoded)
+                    line_length = len(content)
                     curr_size += line_length
                     if curr_size > real_part_size:
                         curr_size = line_length
@@ -645,14 +627,13 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
                         part_index += 1
                         f = open(
                             _PART_DICT_NAME_FORMAT % (output, part_index),
-                            file_mode, encoding=outencoding)
+                            file_mode)
             else:
                 for w in p:
-                    line = make_line(w)
-                    encoded = line.encode(outencoding)
-                    f.write(line)
+                    content = (w + word_separator).encode(outencoding)
+                    f.write(content)
                     progress += 1
-                    line_length = len(encoded)
+                    line_length = len(content)
                     curr_size += line_length
                     if curr_size > real_part_size:
                         curr_size = line_length
@@ -660,15 +641,16 @@ def product_rule_words(result, rules, dict_cache_limit, part_size, append_mode,
                         part_index += 1
                         f = open(
                             _PART_DICT_NAME_FORMAT % (output, part_index),
-                            file_mode, encoding=outencoding)
+                            file_mode)
         else:
+            # complex rule, more join cost.
             if len(productor.productors) > 1:
                 for w in p:
-                    f.write(make_line(w))
+                    f.write((''.join(w) + word_separator).encode(outencoding))
                     progress += 1
             else:
                 for w in p:
-                    f.write(make_line(w))
+                    f.write((w + word_separator).encode(outencoding))
                     progress += 1
     finally:
         f.close()

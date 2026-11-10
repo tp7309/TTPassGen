@@ -260,6 +260,9 @@ def get_dict_rule_data_size(rule, inencoding):
     or reading past bounds.
     """
 
+    if os.path.getsize(rule.dict_path) == 0:
+        return 0, 0
+
     sum_lines = 0
     sepLen = 1
 
@@ -273,7 +276,7 @@ def get_dict_rule_data_size(rule, inencoding):
             chunk = read_func(buffer_size)
 
     # read file last byte for check whether file content end with line separator or not.
-    with open(rule.dict_path, 'rb', encoding=inencoding) as f:
+    with open(rule.dict_path, 'rb') as f:
         f.seek(-1, os.SEEK_END)
         last_byte = f.read()
         if not last_byte == b'\n':

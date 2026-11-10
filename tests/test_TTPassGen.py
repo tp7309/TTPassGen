@@ -273,6 +273,25 @@ class Test_ttpassgen(unittest.TestCase):
             os.remove('testout.dict')
         self.assertEqual(go('$(123,456){3:4:?}'), 0)
 
+    def test_dict_size_with_inencoding_and_empty_dict(self):
+        from ttpassgen.ttpassgen import DictRule, get_dict_rule_data_size
+        dict_in = os.path.join(tests_path, 'in.dict')
+        expected = get_dict_rule_data_size(DictRule('$0', 0, dict_in), None)
+        # An explicit input encoding used to crash in binary mode.
+        self.assertEqual(
+            get_dict_rule_data_size(DictRule('$0', 0, dict_in), 'utf-8'),
+            expected)
+        # An empty dict file used to crash seeking the last byte.
+        empty = os.path.join(tests_path, 'empty.dict')
+        with open(empty, 'w'):
+            pass
+        try:
+            self.assertEqual(
+                get_dict_rule_data_size(DictRule('$0', 0, empty), None),
+                (0, 0))
+        finally:
+            os.remove(empty)
+
     def test_dict_content_not_end_with_line_separator(self):
         shutil.copy(os.path.join(tests_path, 'in.dict'), 'in3.dict')
         dictlist = "%s,in3.dict" % (os.path.join(tests_path, 'in.dict'))
